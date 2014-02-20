@@ -4,7 +4,6 @@ package com.holidaystudios.kngt;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.FPSLogger;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.holidaystudios.kngt.entities.Cave;
@@ -41,6 +40,7 @@ public class KngtzMain extends ApplicationAdapter {
 	@Override
 	public void render ()
     {
+        /*
 		Gdx.gl.glClearColor(1, 1, 0, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		batch.begin();
@@ -49,6 +49,7 @@ public class KngtzMain extends ApplicationAdapter {
 
 		// output the current FPS
         fpsLogger.log();
+        */
 	}
     @Override
     public void resize(int width, int height)

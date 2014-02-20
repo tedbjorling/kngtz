@@ -1,6 +1,7 @@
 package com.holidaystudios.kngt.entities;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.holidaystudios.kngt.NumberUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -113,7 +114,7 @@ public class Room {
     private void connectDoors(final Map<DoorPosition, Integer> _doors) {
         //Create a corridor
         //First, how wide should it be?
-        final Integer corridorBreadth = Math.max(5, (int) Math.round(Math.random()*7));
+        final Integer corridorBreadth = Math.max(5, (int) Math.round(NumberUtils.getRandom()*7));
 
         if ((this.hasDoor(_doors, DoorPosition.N) || this.hasDoor(_doors, DoorPosition.S))
          && (this.hasDoor(_doors, DoorPosition.W) || this.hasDoor(_doors, DoorPosition.E))) {
@@ -285,7 +286,7 @@ public class Room {
         }
     }
 
-    public void applyWalls() {
+    public void createInterior() {
 
         /*
             Idea: The number of doors determines the characteristics of the room
@@ -312,8 +313,8 @@ public class Room {
                 final Rectangle dim = new Rectangle(
                     0,
                     0,
-                    Math.round(Cave.MIN_WALL_LENGTH + Math.random() * (Cave.MAX_WALL_LENGTH - Cave.MIN_WALL_LENGTH)),
-                    Math.round(Cave.MIN_WALL_LENGTH + Math.random() * (Cave.MAX_WALL_LENGTH - Cave.MIN_WALL_LENGTH))
+                    Math.round(Cave.MIN_WALL_LENGTH + NumberUtils.getRandom() * (Cave.MAX_WALL_LENGTH - Cave.MIN_WALL_LENGTH)),
+                    Math.round(Cave.MIN_WALL_LENGTH + NumberUtils.getRandom() * (Cave.MAX_WALL_LENGTH - Cave.MIN_WALL_LENGTH))
                 );
                 switch (availableDoors[0].getKey()) {
                     case S:

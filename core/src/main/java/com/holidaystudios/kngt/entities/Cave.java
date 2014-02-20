@@ -1,5 +1,7 @@
 package com.holidaystudios.kngt.entities;
 
+import com.holidaystudios.kngt.NumberUtils;
+
 /**
  * Created by tedbjorling on 2014-02-20.
  */
@@ -14,7 +16,7 @@ public class Cave {
     private Room[][] rooms;
 
     public Cave(final String seed, final Integer caveWidth, final Integer caveHeight) {
-        this.seed = seed;
+        NumberUtils.setSeed(seed);
         this.caveWidth = caveWidth;
         this.caveHeight = caveHeight;
 
@@ -37,7 +39,18 @@ public class Cave {
 
                 for (int y=0; y<bitmap.length; y++) {
                     for (int x=0; x<bitmap[y].length; x++) {
+
                         caveBitmap[y+offsetY][x+offsetX] = bitmap[y][x];
+
+                        /* ENABLE FOR COORDINATES IN DEBUG OUTPUT
+                        if (x == 0 && y == 0) {
+                            caveBitmap[y+offsetY][x+offsetX] = 1000+cx;
+                        } else if (x == 1 && y == 0) {
+                            caveBitmap[y+offsetY][x+offsetX] = 2000;
+                        } else if (x == 2 && y == 0) {
+                            caveBitmap[y+offsetY][x+offsetX] = 1000+cy;
+                        }
+                        */
                     }
                 }
             }
@@ -48,23 +61,29 @@ public class Cave {
             for (int x=0; x<caveBitmap[y].length; x++) {
                 final Integer p = caveBitmap[y][x];
 
-                if (p == Room.TILE_FLOOR) {
-                    System.out.print('*');
-                } else if (p == Room.TILE_WALL) {
-                    System.out.print('O');
-                } else if (p == Room.TILE_DOOR) {
-                    System.out.print('+');
+                if (p == 2000) {
+                    System.out.print(',');
+                } else if (p >= 1000) {
+                    System.out.print(Integer.toString(p-1000)); //Stupid java
                 } else {
-                    System.out.print(' ');
-                }
 
+                    if (p == Room.TILE_FLOOR) {
+                        System.out.print('.');
+                    } else if (p == Room.TILE_WALL) {
+                        System.out.print('#');
+                    } else if (p == Room.TILE_DOOR) {
+                        System.out.print('O');
+                    } else {
+                        System.out.print(' ');
+                    }
+                }
             }
             System.out.println();
         }
     }
 
     private Integer createDoorPositionHelper() {
-        return 2 + (int) Math.round(Math.random() * (MAX_WALL_LENGTH-4));
+        return 2 + (int) Math.round(NumberUtils.getRandom() * (MAX_WALL_LENGTH-4));
     }
 
     private void createRooms() {
@@ -96,7 +115,7 @@ public class Cave {
                         if (roomBelow.hasDoor(Room.DoorPosition.N)) {
                             thisRoom.setDoor(Room.DoorPosition.S, roomBelow.getDoor(Room.DoorPosition.N));
                         } else {
-                            if (Math.random() > 0.5) {
+                            if (NumberUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
                                 thisRoom.setDoor(Room.DoorPosition.S, doorOffset);
                                 roomBelow.setDoor(Room.DoorPosition.N, doorOffset);
@@ -112,7 +131,7 @@ public class Cave {
                         if (roomAbove.hasDoor(Room.DoorPosition.S)) {
                             thisRoom.setDoor(Room.DoorPosition.N, roomAbove.getDoor(Room.DoorPosition.S));
                         } else {
-                            if (Math.random() > 0.5) {
+                            if (NumberUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
                                 thisRoom.setDoor(Room.DoorPosition.N, doorOffset);
                                 roomAbove.setDoor(Room.DoorPosition.S, doorOffset);
@@ -128,7 +147,7 @@ public class Cave {
                         if (roomLeft.hasDoor(Room.DoorPosition.E)) {
                             thisRoom.setDoor(Room.DoorPosition.W, roomLeft.getDoor(Room.DoorPosition.E));
                         } else {
-                            if (Math.random() > 0.5) {
+                            if (NumberUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
                                 thisRoom.setDoor(Room.DoorPosition.W, doorOffset);
                                 roomLeft.setDoor(Room.DoorPosition.E, doorOffset);
@@ -144,7 +163,7 @@ public class Cave {
                         if (roomRight.hasDoor(Room.DoorPosition.W)) {
                             thisRoom.setDoor(Room.DoorPosition.E, roomRight.getDoor(Room.DoorPosition.W));
                         } else {
-                            if (Math.random() > 0.5) {
+                            if (NumberUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
                                 thisRoom.setDoor(Room.DoorPosition.E, doorOffset);
                                 roomRight.setDoor(Room.DoorPosition.W, doorOffset);
@@ -153,9 +172,14 @@ public class Cave {
                     }
 
                 }
+            }
+        }
 
-                //Now we have created the rooms, conclude the room by painting its walls
-                thisRoom.applyWalls();
+
+        //Now paint the interior of the rooms
+        for (int cy=0; cy<cavitiesY; cy++) {
+            for (int cx=0; cx<cavitiesX; cx++) {
+                rooms[cy][cx].createInterior();
             }
         }
     }
