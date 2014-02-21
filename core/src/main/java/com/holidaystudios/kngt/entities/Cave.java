@@ -26,7 +26,7 @@ public class Cave {
         this.debugCave();
     }
 
-    private void debugCave() {
+    public Integer[][] getBitmap() {
 
         final Integer[][] caveBitmap = new Integer[MAX_WALL_LENGTH*rooms.length][MAX_WALL_LENGTH*rooms.length];
 
@@ -56,7 +56,14 @@ public class Cave {
             }
         }
 
-        //Output the cave bitmap to
+        return caveBitmap;
+    }
+
+    private void debugCave() {
+
+        final Integer[][] caveBitmap = this.getBitmap();
+
+        //Output the cave bitmap to console
         for (int y=0; y<caveBitmap.length; y++) {
             for (int x=0; x<caveBitmap[y].length; x++) {
                 final Integer p = caveBitmap[y][x];
