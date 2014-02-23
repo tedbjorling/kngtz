@@ -1,4 +1,4 @@
-package com.holidaystudios.kngt.screens;
+package com.holidaystudios.kngt.gameplay;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -16,7 +16,7 @@ public class GamePlayScreen implements Screen, GestureListener {
     public final int H_TILES = 10;
     public final int V_TILES = 14;
 
-    public GameScreen() {
+    public GamePlayScreen() {
         stage = new Stage();
         gameTable = new GamePlayTable(TILE_SIZE * H_TILES, TILE_SIZE * V_TILES);
         stage.addActor(gameTable);
@@ -50,6 +50,7 @@ public class GamePlayScreen implements Screen, GestureListener {
         return false;
     }
 
+    @Override public boolean panStop(float x, float y, int x2, int y2) {return false;}
     @Override public void resume() {}
     @Override public void pause() {}
     @Override public void dispose() {}

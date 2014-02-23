@@ -1,4 +1,4 @@
-package com.holidaystudios.kngt.screens;
+package com.holidaystudios.kngt.gameplay;
 
 import java.util.Iterator;
 import com.badlogic.gdx.graphics.Color;
@@ -14,7 +14,7 @@ public class GamePlayTable extends Table {
     public GamePlayTable(int hbound, int vbound) {
         setBounds(0, 0, hbound, vbound);
         setClip(true);
-        playerKnight = new PlayerKnight(this);
+        playerKnight = new PlayerKnight();
         addActor(playerKnight);
     }
 
