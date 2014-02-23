@@ -25,7 +25,7 @@ public class PlayerKnight extends Actor {
     @Override
     public void draw(SpriteBatch batch, float parentAlpha) {
         batch.setColor(getColor().r, getColor().g, getColor().b, getColor().a);
-        batch.draw(GamePlayAssets.knightTexture, getX(), getY());
+        batch.draw(GamePlayAssets.knightTexture[3], getX(), getY());
     }
 
     private void updateBounds() {
