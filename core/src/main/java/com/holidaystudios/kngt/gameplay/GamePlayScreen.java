@@ -49,6 +49,7 @@ public class GamePlayScreen implements Screen, GestureListener {
         camera.position.set(dimension / 2, dimension / 2, 0);
         //camera.zoom = 2f;
         camera.update();
+        stage.setCamera(camera);
 
         game = new Game("Foo", 10, 10, 15);
         map = new TiledMap();
