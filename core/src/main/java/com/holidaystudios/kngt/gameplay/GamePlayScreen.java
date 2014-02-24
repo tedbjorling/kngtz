@@ -11,6 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 public class GamePlayScreen implements Screen, GestureListener {
     private Stage stage;
     private GamePlayTable gameTable;
+    public PlayerKnight playerKnight;
+
 
     public final int TILE_SIZE = 64;
     public final int H_TILES = 10;
@@ -20,6 +22,9 @@ public class GamePlayScreen implements Screen, GestureListener {
         stage = new Stage();
         gameTable = new GamePlayTable(TILE_SIZE * H_TILES, TILE_SIZE * V_TILES);
         stage.addActor(gameTable);
+
+        playerKnight = new PlayerKnight();
+        stage.addActor(playerKnight);
     }
 
     public void resize(int width, int height) {
@@ -47,6 +52,31 @@ public class GamePlayScreen implements Screen, GestureListener {
 
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {
+        float velocity;
+        Gdx.app.log("kngts", "fling - velocityX(" + velocityX + ") - velocityY(" + velocityY + ")");
+        boolean horizontalMovement;
+        if(Math.abs(velocityX) > Math.abs(velocityY)) {
+            horizontalMovement = true;
+            velocity = velocityX;
+        } else {
+            horizontalMovement = false;
+            velocity = velocityY;
+        }
+
+        if(Math.abs(velocity) > 10.0f) {
+            if(velocity < 0.0f) {
+                if(horizontalMovement)
+                    playerKnight.move(PlayerKnight.Direction.west);
+                else
+                    playerKnight.move(PlayerKnight.Direction.north);
+            } else {
+                if(horizontalMovement)
+                    playerKnight.move(PlayerKnight.Direction.east);
+                else
+                    playerKnight.move(PlayerKnight.Direction.south);
+            }
+        }
+
         return false;
     }
 

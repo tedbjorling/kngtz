@@ -9,13 +9,10 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
 public class GamePlayTable extends Table {
-    public PlayerKnight playerKnight;
 
     public GamePlayTable(int hbound, int vbound) {
         setBounds(0, 0, hbound, vbound);
         setClip(true);
-        playerKnight = new PlayerKnight();
-        addActor(playerKnight);
     }
 
     @Override
