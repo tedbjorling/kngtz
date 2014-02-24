@@ -1,5 +1,6 @@
 package com.holidaystudios.kngt.entities;
 
+import com.holidaystudios.kngt.gameplay.GamePlayTiles;
 import com.holidaystudios.kngt.tools.RandomUtils;
 
 /**
@@ -7,18 +8,17 @@ import com.holidaystudios.kngt.tools.RandomUtils;
  */
 public class Cave {
 
-    public final static Integer MIN_WALL_LENGTH = 5;
-    public final static Integer MAX_WALL_LENGTH = 15;
-
     private String seed;
-    private Integer caveWidth;
-    private Integer caveHeight;
+    private Integer roomsX;
+    private Integer roomsY;
+    private Integer tilesPerDistance;
     private Room[][] rooms;
 
-    public Cave(final String seed, final Integer caveWidth, final Integer caveHeight) {
+    public Cave(final String seed, final Integer roomsX, final Integer roomsY, final Integer tilesPerDistance) {
         RandomUtils.setSeed(seed);
-        this.caveWidth = caveWidth;
-        this.caveHeight = caveHeight;
+        this.roomsX = roomsX;
+        this.roomsY = roomsY;
+        this.tilesPerDistance = tilesPerDistance;
 
         //Start mapping out the individual rooms
         this.createRooms();
@@ -26,16 +26,20 @@ public class Cave {
         this.debugCave();
     }
 
+    public Integer[][] getRoomBitmap(final Integer cx, final Integer cy) {
+        return rooms[cy][cx].getBitmap();
+    }
+
     public Integer[][] getBitmap() {
 
-        final Integer[][] caveBitmap = new Integer[MAX_WALL_LENGTH*rooms.length][MAX_WALL_LENGTH*rooms.length];
+        final Integer[][] caveBitmap = new Integer[this.tilesPerDistance*rooms.length][this.tilesPerDistance*rooms.length];
 
         //Fill the main bitmap
         for (int cy=0; cy<rooms.length; cy++) {
             for (int cx=0; cx<rooms[cy].length; cx++) {
                 final Integer[][] bitmap = rooms[cy][cx].getBitmap();
-                final Integer offsetX = cx*MAX_WALL_LENGTH;
-                final Integer offsetY = cy*MAX_WALL_LENGTH;
+                final Integer offsetX = cx*this.tilesPerDistance;
+                final Integer offsetY = cy*this.tilesPerDistance;
 
                 for (int y=0; y<bitmap.length; y++) {
                     for (int x=0; x<bitmap[y].length; x++) {
@@ -74,11 +78,11 @@ public class Cave {
                     System.out.print(Integer.toString(p-1000)); //Stupid java
                 } else {
 
-                    if (p == Room.TILE_FLOOR) {
+                    if (p == GamePlayTiles.TILE_FLOOR) {
                         System.out.print('.');
-                    } else if (p == Room.TILE_WALL) {
+                    } else if (p == GamePlayTiles.TILE_WALL) {
                         System.out.print('#');
-                    } else if (p == Room.TILE_DOOR) {
+                    } else if (p == GamePlayTiles.TILE_DOOR) {
                         System.out.print('O');
                     } else {
                         System.out.print(' ');
@@ -90,32 +94,30 @@ public class Cave {
     }
 
     private Integer createDoorPositionHelper() {
-        return 2 + (int) Math.round(RandomUtils.getRandom() * (MAX_WALL_LENGTH-4));
+        return 2 + (int) Math.round(RandomUtils.getRandom() * (this.tilesPerDistance-4));
     }
 
     private void createRooms() {
-        final Integer cavitiesX = (int) Math.round(Math.floor(this.caveWidth/MAX_WALL_LENGTH));
-        final Integer cavitiesY = (int) Math.round(Math.floor(this.caveHeight/MAX_WALL_LENGTH));
 
         //Create the rooms
-        rooms = new Room[cavitiesY][];
-        for (int cy=0; cy<cavitiesY; cy++) {
-            rooms[cy] = new Room[cavitiesX];
-            for (int cx=0; cx<cavitiesX; cx++) {
-                rooms[cy][cx] = new Room(cx, cy);
+        rooms = new Room[this.roomsY][];
+        for (int cy=0; cy<this.roomsY; cy++) {
+            rooms[cy] = new Room[this.roomsX];
+            for (int cx=0; cx<this.roomsX; cx++) {
+                rooms[cy][cx] = new Room(cx, cy, this.tilesPerDistance);
             }
         }
 
         //Create doors
-        for (int cy=0; cy<cavitiesY; cy++) {
-            for (int cx=0; cx<cavitiesX; cx++) {
+        for (int cy=0; cy<this.roomsY; cy++) {
+            for (int cx=0; cx<this.roomsX; cx++) {
                 final Room thisRoom = rooms[cy][cx];
 
                 //Make sure that each cavity has at least one door
                 while (!thisRoom.hasAnyDoor()) {
 
                     //South door
-                    if (cy<(cavitiesY-1)) {
+                    if (cy<(this.roomsY-1)) {
                         final Room roomBelow = rooms[cy+1][cx];
 
                         //Does the room below has a door pointing upwards?
@@ -163,7 +165,7 @@ public class Cave {
                     }
 
                     //East door
-                    if (cx<(cavitiesX-1)) {
+                    if (cx<(this.roomsX-1)) {
                         final Room roomRight = rooms[cy][cx+1];
 
                         //Does the room to the right has a door pointing left?
@@ -184,8 +186,8 @@ public class Cave {
 
 
         //Now paint the interior of the rooms
-        for (int cy=0; cy<cavitiesY; cy++) {
-            for (int cx=0; cx<cavitiesX; cx++) {
+        for (int cy=0; cy<this.roomsY; cy++) {
+            for (int cx=0; cx<this.roomsX; cx++) {
                 rooms[cy][cx].createInterior();
             }
         }

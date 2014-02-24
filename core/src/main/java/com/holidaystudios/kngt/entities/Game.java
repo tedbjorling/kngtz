@@ -7,12 +7,16 @@ public class Game {
 
     private Cave cave;
 
-    public Game() {
-        cave = new Cave("Foo", 100, 100);
+    public Game(final String seed, final Integer roomsX, final Integer roomsY, final Integer tilesPerDistance) {
+        cave = new Cave(seed, roomsX, roomsY, tilesPerDistance);
     }
 
     public Integer[][] getBitmap() {
         return cave.getBitmap();
+    }
+
+    public Integer[][] getRoomBitmap(final Integer cx, final Integer cy) {
+        return this.cave.getRoomBitmap(cx, cy);
     }
 
 }

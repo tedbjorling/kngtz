@@ -1,6 +1,7 @@
 package com.holidaystudios.kngt.entities;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.holidaystudios.kngt.gameplay.GamePlayTiles;
 import com.holidaystudios.kngt.tools.RandomUtils;
 
 import java.util.HashMap;
@@ -15,25 +16,21 @@ public class Room {
         S, W, E, N
     }
 
-    public final static Integer TILE_NONE   = 0;
-    public final static Integer TILE_FLOOR  = 1;
-    public final static Integer TILE_WALL   = 2;
-    public final static Integer TILE_DOOR   = 3;
-
-
-    private Integer posX, posY, pixelX, pixelY, pixelWidth, pixelHeight;
+    private final static Integer MIN_WALL_LENGTH = 3;
+    private Integer posX, posY, pixelX, pixelY, pixelWidth, pixelHeight, tilesPerDistance;
     private Integer[][] bitmap;
     private Map<DoorPosition, Integer> doors = new HashMap<DoorPosition, Integer>();
 
-    public Room(final Integer posX, final Integer posY) {
+    public Room(final Integer posX, final Integer posY, final Integer tilesPerDistance) {
         this.posX = posX;
         this.posY = posY;
 
         //Convenience variables
-        this.pixelX = Cave.MAX_WALL_LENGTH*this.posX;
-        this.pixelY = Cave.MAX_WALL_LENGTH*this.posY;
-        this.pixelWidth  = Cave.MAX_WALL_LENGTH;
-        this.pixelHeight = Cave.MAX_WALL_LENGTH;
+        this.pixelX = tilesPerDistance*this.posX;
+        this.pixelY = tilesPerDistance*this.posY;
+        this.pixelWidth  = tilesPerDistance;
+        this.pixelHeight = tilesPerDistance;
+        this.tilesPerDistance = tilesPerDistance;
 
         //Init the underlying room bitmap
         initBitmap();
@@ -45,7 +42,7 @@ public class Room {
         for (int y=0; y<this.pixelHeight; y++) {
             bitmap[y] = new Integer[this.pixelWidth];
             for (int x=0; x<this.pixelWidth; x++) {
-                bitmap[y][x] = TILE_NONE;
+                bitmap[y][x] = GamePlayTiles.TILE_NONE;
             }
         }
     }
@@ -88,24 +85,24 @@ public class Room {
     private void applyWallInBitmap() {
 
         //Draw the wall
-        for (int x=0; x<Cave.MAX_WALL_LENGTH; x++) {
-            for (int y=0; y<Cave.MAX_WALL_LENGTH; y++) {
+        for (int x=0; x<this.tilesPerDistance; x++) {
+            for (int y=0; y<this.tilesPerDistance; y++) {
 
                 //Is any of my neighbours a floor tile? If so, I am a wall
-                if (this.bitmap[y][x] == TILE_FLOOR) {
+                if (this.bitmap[y][x] == GamePlayTiles.TILE_FLOOR) {
                     continue;
                 }
 
-                int l = Cave.MAX_WALL_LENGTH-1;
-                if ((y>0 && x>0 && this.bitmap[y-1][x-1] == TILE_FLOOR)
-                ||  (y>0 && 	   this.bitmap[y-1][x]   == TILE_FLOOR)
-                ||  (y>0 && x<l && this.bitmap[y-1][x+1] == TILE_FLOOR)
-                ||  (       x>0 && this.bitmap[y][x-1]   == TILE_FLOOR)
-                ||  (       x<l && this.bitmap[y][x+1]   == TILE_FLOOR)
-                ||  (y<l && x>0 && this.bitmap[y+1][x-1] == TILE_FLOOR)
-                ||  (y<l && 	   this.bitmap[y+1][x]   == TILE_FLOOR)
-                ||  (y<l && x<l && this.bitmap[y+1][x+1] == TILE_FLOOR)) {
-                    this.bitmap[y][x] = TILE_WALL;
+                int l = this.tilesPerDistance-1;
+                if ((y>0 && x>0 && this.bitmap[y-1][x-1] == GamePlayTiles.TILE_FLOOR)
+                ||  (y>0 && 	   this.bitmap[y-1][x]   == GamePlayTiles.TILE_FLOOR)
+                ||  (y>0 && x<l && this.bitmap[y-1][x+1] == GamePlayTiles.TILE_FLOOR)
+                ||  (       x>0 && this.bitmap[y][x-1]   == GamePlayTiles.TILE_FLOOR)
+                ||  (       x<l && this.bitmap[y][x+1]   == GamePlayTiles.TILE_FLOOR)
+                ||  (y<l && x>0 && this.bitmap[y+1][x-1] == GamePlayTiles.TILE_FLOOR)
+                ||  (y<l && 	   this.bitmap[y+1][x]   == GamePlayTiles.TILE_FLOOR)
+                ||  (y<l && x<l && this.bitmap[y+1][x+1] == GamePlayTiles.TILE_FLOOR)) {
+                    this.bitmap[y][x] = GamePlayTiles.TILE_WALL;
                 }
             }
         }
@@ -166,7 +163,7 @@ public class Room {
                     ||  y == dim.y || y == dim.y+dim.height-1) {
                         //room.bitmap[y][x] = defs.tiles.types.wall;
                     } else {
-                        this.bitmap[y][x] = TILE_FLOOR;
+                        this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
                     }
                 }
             }
@@ -178,18 +175,18 @@ public class Room {
 
             if (nX == sX) {
                 //Straight corridor
-                for (int y=0; y<Cave.MAX_WALL_LENGTH; y++) {
+                for (int y=0; y<this.tilesPerDistance; y++) {
                     for (int x=nX; x<nX+corridorBreadth; x++) {
-                        if (y == 0 || y == Cave.MAX_WALL_LENGTH-1) {
+                        if (y == 0 || y == this.tilesPerDistance-1) {
                             //room.bitmap[y][x] = defs.tiles.types.wall;
                         } else {
-                            this.bitmap[y][x] = TILE_FLOOR;
+                            this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
                         }
                     }
                 }
             } else {
 
-                int kneePos = (int) Math.round(Cave.MAX_WALL_LENGTH/2);
+                int kneePos = (int) Math.round(this.tilesPerDistance/2);
 
                 //First paint the straight corridors
                 for (int y=0; y<this.pixelHeight; y++) {
@@ -200,10 +197,10 @@ public class Room {
                         x = sX;
                     }
                     for (int _x=x; _x<x+corridorBreadth; _x++) {
-                        if (y == 0 || y == Cave.MAX_WALL_LENGTH-1) {
+                        if (y == 0 || y == this.tilesPerDistance-1) {
                             //room.bitmap[y][_x] = defs.tiles.types.wall;
                         } else {
-                            this.bitmap[y][_x] = TILE_FLOOR;
+                            this.bitmap[y][_x] = GamePlayTiles.TILE_FLOOR;
                         }
                     }
                 }
@@ -221,7 +218,7 @@ public class Room {
 
                 for (int x=startX; x<endX; x++) {
                     for (int y=kneeStart; y<kneeStart+corridorBreadth; y++) {
-                        this.bitmap[y][x] = TILE_FLOOR;
+                        this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
                     }
                 }
             }
@@ -235,18 +232,18 @@ public class Room {
 
             if (wY == eY) {
                 //Straight corridor
-                for (int x=0; x<Cave.MAX_WALL_LENGTH; x++) {
+                for (int x=0; x<this.tilesPerDistance; x++) {
                     for (int y=wY; y<wY+corridorBreadth; y++) {
-                        if (x == 0 || x == Cave.MAX_WALL_LENGTH-1) {
+                        if (x == 0 || x == this.tilesPerDistance-1) {
                             //room.bitmap[y][x] = defs.tiles.types.wall;
                         } else {
-                            this.bitmap[y][x] = TILE_FLOOR;
+                            this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
                         }
                     }
                 }
             } else {
 
-                int kneePos = Math.round(Cave.MAX_WALL_LENGTH/2);
+                int kneePos = Math.round(this.tilesPerDistance/2);
 
                 //First paint the straight corridors
                 for (int x=0; x<this.pixelWidth; x++) {
@@ -257,10 +254,10 @@ public class Room {
                         y = eY;
                     }
                     for (int _y=y; _y<y+corridorBreadth; _y++) {
-                        if (x == 0 || x == Cave.MAX_WALL_LENGTH-1) {
+                        if (x == 0 || x == this.tilesPerDistance-1) {
                             //room.bitmap[_y][x] = defs.tiles.types.wall;
                         } else {
-                            this.bitmap[_y][x] = TILE_FLOOR;
+                            this.bitmap[_y][x] = GamePlayTiles.TILE_FLOOR;
                         }
                     }
                 }
@@ -279,7 +276,7 @@ public class Room {
 
                 for (int y=startY; y<endY; y++) {
                     for (int x=kneeStart; x<kneeStart+corridorBreadth; x++) {
-                        this.bitmap[y][x] = TILE_FLOOR;
+                        this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
                     }
                 }
             }
@@ -313,8 +310,8 @@ public class Room {
                 final Rectangle dim = new Rectangle(
                     0,
                     0,
-                    Math.round(Cave.MIN_WALL_LENGTH + RandomUtils.getRandom() * (Cave.MAX_WALL_LENGTH - Cave.MIN_WALL_LENGTH)),
-                    Math.round(Cave.MIN_WALL_LENGTH + RandomUtils.getRandom() * (Cave.MAX_WALL_LENGTH - Cave.MIN_WALL_LENGTH))
+                    Math.round(MIN_WALL_LENGTH + RandomUtils.getRandom() * (this.tilesPerDistance - MIN_WALL_LENGTH)),
+                    Math.round(MIN_WALL_LENGTH + RandomUtils.getRandom() * (this.tilesPerDistance - MIN_WALL_LENGTH))
                 );
                 switch (availableDoors[0].getKey()) {
                     case S:
@@ -339,9 +336,9 @@ public class Room {
                     for (int x=(int)dim.x; x<dim.x+dim.width; x++) {
                         if (x == dim.x || x == dim.x+dim.width-1
                         ||  y == dim.y || y == dim.y+dim.height-1) {
-                            this.bitmap[y][x] = TILE_WALL;
+                            this.bitmap[y][x] = GamePlayTiles.TILE_WALL;
                         } else {
-                            this.bitmap[y][x] = TILE_FLOOR;
+                            this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
                         }
                     }
                 }
@@ -441,9 +438,9 @@ public class Room {
                     for (int x=0; x<this.pixelWidth; x++) {
                         if (x == 0 || x == this.pixelWidth-1
                         ||  y == 0 || y == this.pixelHeight-1) {
-                            this.bitmap[y][x] = TILE_WALL;
+                            this.bitmap[y][x] = GamePlayTiles.TILE_WALL;
                         } else {
-                            this.bitmap[y][x] = TILE_FLOOR;
+                            this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
                         }
                     }
                 }
@@ -452,19 +449,19 @@ public class Room {
 
         //Apply doors to local bitmap
         if (this.hasDoor(DoorPosition.S)) {
-            this.bitmap[this.pixelHeight-1][this.getDoor(DoorPosition.S)] = TILE_DOOR;
+            this.bitmap[this.pixelHeight-1][this.getDoor(DoorPosition.S)] = GamePlayTiles.TILE_DOOR;
         }
 
         if (this.hasDoor(DoorPosition.N)) {
-            this.bitmap[0][this.getDoor(DoorPosition.N)] = TILE_DOOR;
+            this.bitmap[0][this.getDoor(DoorPosition.N)] = GamePlayTiles.TILE_DOOR;
         }
 
         if (this.hasDoor(DoorPosition.W)) {
-            this.bitmap[this.getDoor(DoorPosition.W)][0] = TILE_DOOR;
+            this.bitmap[this.getDoor(DoorPosition.W)][0] = GamePlayTiles.TILE_DOOR;
         }
 
         if (this.hasDoor(DoorPosition.E)) {
-            this.bitmap[this.getDoor(DoorPosition.E)][this.pixelWidth-1] = TILE_DOOR;
+            this.bitmap[this.getDoor(DoorPosition.E)][this.pixelWidth-1] = GamePlayTiles.TILE_DOOR;
         }
 
     }

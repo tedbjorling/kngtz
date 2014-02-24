@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.holidaystudios.kngt.KngtzMain;
 import com.holidaystudios.kngt.entities.Game;
-import com.holidaystudios.kngt.entities.Room;
+import com.holidaystudios.kngt.gameplay.GamePlayTiles;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -51,7 +51,7 @@ public class GameScreen implements Screen, InputProcessor {
         glViewport = new Rectangle(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
 
         //Create game
-        game = new Game();
+        game = new Game("foo", 10, 10, 15);
 
         Gdx.input.setInputProcessor(this);
     }
@@ -80,11 +80,11 @@ public class GameScreen implements Screen, InputProcessor {
             for (int x=0; x<caveBitmap[y].length; x++) {
                 final Integer p = caveBitmap[y][x];
 
-                if (p == Room.TILE_FLOOR) {
+                if (p == GamePlayTiles.TILE_FLOOR) {
                     kngtz.batch.draw(floorTexture, x * TILE_DIM, y * TILE_DIM);
-                } else if (p == Room.TILE_WALL) {
+                } else if (p == GamePlayTiles.TILE_WALL) {
                     kngtz.batch.draw(wallTexture, x * TILE_DIM, y * TILE_DIM);
-                } else if (p == Room.TILE_DOOR) {
+                } else if (p == GamePlayTiles.TILE_DOOR) {
                     kngtz.batch.draw(doorTexture, x*TILE_DIM, y*TILE_DIM);
                 }
             }

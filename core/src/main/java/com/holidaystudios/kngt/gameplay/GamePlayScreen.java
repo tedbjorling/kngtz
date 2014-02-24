@@ -3,32 +3,83 @@ package com.holidaystudios.kngt.gameplay;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
+import com.badlogic.gdx.maps.MapLayers;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.holidaystudios.kngt.entities.Game;
 
 public class GamePlayScreen implements Screen, GestureListener {
     private Stage stage;
-    private GamePlayTable gameTable;
     public PlayerKnight playerKnight;
 
 
-    public final int TILE_SIZE = 64;
-    public final int H_TILES = 10;
-    public final int V_TILES = 14;
+    public final Integer TILE_SIZE = 64;
+    public final Integer TILES_PER_DISTANCE = 15;
+    static final Integer VIEW_WIDTH  = 800;
+    static final Integer VIEW_HEIGHT = 480;
+
+    private Game game;
+    private TiledMap map;
+    private TiledMapRenderer renderer;
+    private OrthographicCamera camera;
+    private Rectangle glViewport;
 
     public GamePlayScreen() {
         stage = new Stage();
-        gameTable = new GamePlayTable(TILE_SIZE * H_TILES, TILE_SIZE * V_TILES);
-        stage.addActor(gameTable);
 
         playerKnight = new PlayerKnight();
         stage.addActor(playerKnight);
+
+        //Load assets
+        GamePlayAssets.load();
+
+        Integer dimension = TILES_PER_DISTANCE * TILE_SIZE;
+
+        camera = new OrthographicCamera(dimension, dimension);
+        camera.position.set(dimension / 2, dimension / 2, 0);
+        //camera.zoom = 2f;
+        camera.update();
+
+        game = new Game("Foo", 10, 10, 15);
+        map = new TiledMap();
+        MapLayers layers = map.getLayers();
+        TiledMapTileLayer layer = new TiledMapTileLayer(TILES_PER_DISTANCE, TILES_PER_DISTANCE, TILE_SIZE, TILE_SIZE);
+
+        //Add the first room
+        Integer[][] bitmap = game.getRoomBitmap(1, 0);
+        for (int y=0; y<bitmap.length; y++) {
+            for (int x=0; x<bitmap[y].length; x++) {
+                final Integer p = bitmap[y][x];
+                TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+                StaticTiledMapTile mapTile = null;
+
+                if (p == GamePlayTiles.TILE_FLOOR) {
+                    mapTile = new StaticTiledMapTile(new TextureRegion(GamePlayAssets.floorTexture));
+                } else if (p == GamePlayTiles.TILE_WALL) {
+                    mapTile = new StaticTiledMapTile(new TextureRegion(GamePlayAssets.wallTexture));
+                } else if (p == GamePlayTiles.TILE_DOOR) {
+                    mapTile = new StaticTiledMapTile(new TextureRegion(GamePlayAssets.doorTexture));
+                }
+                cell.setTile(mapTile);
+                layer.setCell(x, y, cell);
+            }
+        }
+        layers.add(layer);
+        renderer = new OrthogonalTiledMapRenderer(map);
     }
 
     public void resize(int width, int height) {
-        stage.setViewport(TILE_SIZE * H_TILES, TILE_SIZE * V_TILES, true);
+        stage.setViewport(TILE_SIZE * TILES_PER_DISTANCE, TILE_SIZE * TILES_PER_DISTANCE, true);
         stage.getCamera().translate(-stage.getGutterWidth(), -stage.getGutterHeight(), 0);
     }
 
@@ -36,8 +87,14 @@ public class GamePlayScreen implements Screen, GestureListener {
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+
+        camera.update();
+        renderer.setView(camera);
+        renderer.render();
+
         stage.act(delta);
         stage.draw();
+
     }
 
     @Override
