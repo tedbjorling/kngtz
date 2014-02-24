@@ -1,6 +1,6 @@
 package com.holidaystudios.kngt.entities;
 
-import com.holidaystudios.kngt.NumberUtils;
+import com.holidaystudios.kngt.tools.RandomUtils;
 
 /**
  * Created by tedbjorling on 2014-02-20.
@@ -16,7 +16,7 @@ public class Cave {
     private Room[][] rooms;
 
     public Cave(final String seed, final Integer caveWidth, final Integer caveHeight) {
-        NumberUtils.setSeed(seed);
+        RandomUtils.setSeed(seed);
         this.caveWidth = caveWidth;
         this.caveHeight = caveHeight;
 
@@ -90,7 +90,7 @@ public class Cave {
     }
 
     private Integer createDoorPositionHelper() {
-        return 2 + (int) Math.round(NumberUtils.getRandom() * (MAX_WALL_LENGTH-4));
+        return 2 + (int) Math.round(RandomUtils.getRandom() * (MAX_WALL_LENGTH-4));
     }
 
     private void createRooms() {
@@ -122,7 +122,7 @@ public class Cave {
                         if (roomBelow.hasDoor(Room.DoorPosition.N)) {
                             thisRoom.setDoor(Room.DoorPosition.S, roomBelow.getDoor(Room.DoorPosition.N));
                         } else {
-                            if (NumberUtils.getRandom() > 0.5) {
+                            if (RandomUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
                                 thisRoom.setDoor(Room.DoorPosition.S, doorOffset);
                                 roomBelow.setDoor(Room.DoorPosition.N, doorOffset);
@@ -138,7 +138,7 @@ public class Cave {
                         if (roomAbove.hasDoor(Room.DoorPosition.S)) {
                             thisRoom.setDoor(Room.DoorPosition.N, roomAbove.getDoor(Room.DoorPosition.S));
                         } else {
-                            if (NumberUtils.getRandom() > 0.5) {
+                            if (RandomUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
                                 thisRoom.setDoor(Room.DoorPosition.N, doorOffset);
                                 roomAbove.setDoor(Room.DoorPosition.S, doorOffset);
@@ -154,7 +154,7 @@ public class Cave {
                         if (roomLeft.hasDoor(Room.DoorPosition.E)) {
                             thisRoom.setDoor(Room.DoorPosition.W, roomLeft.getDoor(Room.DoorPosition.E));
                         } else {
-                            if (NumberUtils.getRandom() > 0.5) {
+                            if (RandomUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
                                 thisRoom.setDoor(Room.DoorPosition.W, doorOffset);
                                 roomLeft.setDoor(Room.DoorPosition.E, doorOffset);
@@ -170,7 +170,7 @@ public class Cave {
                         if (roomRight.hasDoor(Room.DoorPosition.W)) {
                             thisRoom.setDoor(Room.DoorPosition.E, roomRight.getDoor(Room.DoorPosition.W));
                         } else {
-                            if (NumberUtils.getRandom() > 0.5) {
+                            if (RandomUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
                                 thisRoom.setDoor(Room.DoorPosition.E, doorOffset);
                                 roomRight.setDoor(Room.DoorPosition.W, doorOffset);
