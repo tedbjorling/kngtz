@@ -1,3 +1,7 @@
+/* Copyright by Johannes Borchardt */
+/* Released under Apache 2.0 */
+/* https://code.google.com/p/animated-gifs-in-android/ */
+
 package com.holidaystudios.kngt.tools;
 
 import java.io.InputStream;
@@ -5,6 +9,10 @@ import java.util.Vector;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.Array;
 
 public class GifDecoder {
     /**
@@ -69,7 +77,11 @@ public class GifDecoder {
 
             for(y = 0; y < h; y++) {
                 for(x = 0; x < w; x++) {
-                    drawPixel(x, y, data[x + y * w]);
+                    int pxl_ARGB8888 = data[x + y * w];
+                    int pxl_RGBA8888 =
+                            ((pxl_ARGB8888 >> 24) & 0x000000ff) | ((pxl_ARGB8888 << 8) & 0xffffff00);
+                    // convert ARGB8888 > RGBA8888
+                    drawPixel(x, y, pxl_RGBA8888);
                 }
             }
         }
@@ -79,14 +91,13 @@ public class GifDecoder {
 
             int k, l;
 
-            Gdx.app.log("Kngts", " ----- getPixels: " + offset + ", " + stride + ", " + x + ", " + y + ", " + width + ", " + height);
-
             for(k = y;  k < y + height; k++) {
                 int _offset = offset;
                 for(l = x; l < x + width; l++) {
-                    Gdx.app.log("Kngts", "getPixels[" + offset + "] (max: " + pixels.length + ")" );
-                    pixels[_offset] = bb.getInt(4 * (l + k * width));
-                    _offset++;
+                    int pxl = bb.getInt(4 * (l + k * width));
+
+                    // convert RGBA8888 > ARGB8888
+                    pixels[_offset++] = ((pxl >> 8) & 0x00ffffff) | ((pxl << 24) & 0xff000000);
                 }
                 offset += stride;
             }
@@ -673,5 +684,54 @@ public class GifDecoder {
         do {
             readBlock();
         } while ((blockSize > 0) && !err());
+    }
+
+    public Animation getAnimation(int playType) {
+        int nrFrames = getFrameCount();
+        Pixmap frame = getFrame(0);
+        int width = frame.getWidth();
+        int height = frame.getHeight();
+        int vzones = (int)Math.sqrt((double)nrFrames);
+        int hzones = vzones;
+
+        while(vzones * hzones < nrFrames) vzones++;
+
+        int v, h;
+
+        Pixmap target = new Pixmap(width * hzones, height * vzones, Pixmap.Format.RGBA8888);
+
+        for(h = 0; h < hzones; h++) {
+            for(v = 0; v < vzones; v++) {
+                int frameID = v + h * vzones;
+                if(frameID < nrFrames) {
+                    frame = getFrame(frameID);
+                    target.drawPixmap(frame, h * width, v * height);
+                }
+            }
+        }
+
+        Texture texture = new Texture(target);
+        Array<TextureRegion> texReg = new Array<TextureRegion>();
+
+        for(h = 0; h < hzones; h++) {
+            for(v = 0; v < vzones; v++) {
+                int frameID = v + h * vzones;
+                if(frameID < nrFrames) {
+                    TextureRegion tr = new TextureRegion(texture, h * width, v * height, width, height);
+                    texReg.add(tr);
+                }
+            }
+        }
+        float frameDuration = (float)getDelay(0);
+        frameDuration /= 1000; // convert milliseconds into seconds
+        Animation result = new Animation(frameDuration, texReg, playType);
+
+        return result;
+    }
+
+    public static Animation loadGIFAnimation(int playType, InputStream is) {
+        GifDecoder gdec = new GifDecoder();
+        gdec.read(is);
+        return gdec.getAnimation(playType);
     }
 }

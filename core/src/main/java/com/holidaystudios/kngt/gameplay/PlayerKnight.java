@@ -9,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 public class PlayerKnight extends Actor {
     private Rectangle bounds = new Rectangle();
 
+    float stateTime = 0.0f;
+
     public PlayerKnight() {
         setWidth(64);
         setHeight(64);
@@ -20,12 +22,14 @@ public class PlayerKnight extends Actor {
     public void act(float delta){
         super.act(delta);
         updateBounds();
+
+        stateTime += delta;
     }
 
     @Override
     public void draw(SpriteBatch batch, float parentAlpha) {
         batch.setColor(getColor().r, getColor().g, getColor().b, getColor().a);
-        batch.draw(GamePlayAssets.knightTexture[3], getX(), getY());
+        batch.draw(GamePlayAssets.knightAnimation.getKeyFrame(stateTime), getX(), getY());
     }
 
     private void updateBounds() {
