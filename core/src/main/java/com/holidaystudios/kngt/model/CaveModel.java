@@ -1,23 +1,23 @@
-package com.holidaystudios.kngt.entities;
+package com.holidaystudios.kngt.model;
 
-import com.holidaystudios.kngt.gameplay.GamePlayTiles;
+import com.holidaystudios.kngt.TileTypes;
 import com.holidaystudios.kngt.tools.RandomUtils;
 
 /**
  * Created by tedbjorling on 2014-02-20.
  */
-public class Cave {
+public class CaveModel {
 
     private String seed;
     private Integer roomsX;
     private Integer roomsY;
     private Integer tilesPerDistance;
-    private Room[][] rooms;
+    private RoomModel[][] rooms;
 
-    public Cave(final String seed, final Integer roomsX, final Integer roomsY, final Integer tilesPerDistance) {
+    public CaveModel(final String seed, final Integer roomsX, final Integer roomsY, final Integer tilesPerDistance) {
         RandomUtils.setSeed(seed);
-        this.roomsX = roomsX;
-        this.roomsY = roomsY;
+        this.setRoomsX(roomsX);
+        this.setRoomsY(roomsY);
         this.tilesPerDistance = tilesPerDistance;
 
         //Start mapping out the individual rooms
@@ -78,11 +78,11 @@ public class Cave {
                     System.out.print(Integer.toString(p-1000)); //Stupid java
                 } else {
 
-                    if (p == GamePlayTiles.TILE_FLOOR) {
+                    if (p == TileTypes.TILE_FLOOR) {
                         System.out.print('.');
-                    } else if (p == GamePlayTiles.TILE_WALL) {
+                    } else if (p == TileTypes.TILE_WALL) {
                         System.out.print('#');
-                    } else if (p == GamePlayTiles.TILE_DOOR) {
+                    } else if (p == TileTypes.TILE_DOOR) {
                         System.out.print('O');
                     } else {
                         System.out.print(' ');
@@ -100,82 +100,82 @@ public class Cave {
     private void createRooms() {
 
         //Create the rooms
-        rooms = new Room[this.roomsY][];
-        for (int cy=0; cy<this.roomsY; cy++) {
-            rooms[cy] = new Room[this.roomsX];
-            for (int cx=0; cx<this.roomsX; cx++) {
-                rooms[cy][cx] = new Room(cx, cy, this.tilesPerDistance);
+        rooms = new RoomModel[this.getRoomsY()][];
+        for (int cy=0; cy< this.getRoomsY(); cy++) {
+            rooms[cy] = new RoomModel[this.getRoomsX()];
+            for (int cx=0; cx< this.getRoomsX(); cx++) {
+                rooms[cy][cx] = new RoomModel(cx, cy, this.tilesPerDistance);
             }
         }
 
         //Create doors
-        for (int cy=0; cy<this.roomsY; cy++) {
-            for (int cx=0; cx<this.roomsX; cx++) {
-                final Room thisRoom = rooms[cy][cx];
+        for (int cy=0; cy< this.getRoomsY(); cy++) {
+            for (int cx=0; cx< this.getRoomsX(); cx++) {
+                final RoomModel thisRoom = rooms[cy][cx];
 
                 //Make sure that each cavity has at least one door
                 while (!thisRoom.hasAnyDoor()) {
 
                     //South door
-                    if (cy<(this.roomsY-1)) {
-                        final Room roomBelow = rooms[cy+1][cx];
+                    if (cy<(this.getRoomsY() -1)) {
+                        final RoomModel roomBelow = rooms[cy+1][cx];
 
                         //Does the room below has a door pointing upwards?
-                        if (roomBelow.hasDoor(Room.DoorPosition.N)) {
-                            thisRoom.setDoor(Room.DoorPosition.S, roomBelow.getDoor(Room.DoorPosition.N));
+                        if (roomBelow.hasDoor(RoomModel.DoorPosition.N)) {
+                            thisRoom.setDoor(RoomModel.DoorPosition.S, roomBelow.getDoor(RoomModel.DoorPosition.N));
                         } else {
                             if (RandomUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
-                                thisRoom.setDoor(Room.DoorPosition.S, doorOffset);
-                                roomBelow.setDoor(Room.DoorPosition.N, doorOffset);
+                                thisRoom.setDoor(RoomModel.DoorPosition.S, doorOffset);
+                                roomBelow.setDoor(RoomModel.DoorPosition.N, doorOffset);
                             }
                         }
                     }
 
                     //North door
                     if (cy>0) {
-                        final Room roomAbove = rooms[cy-1][cx];
+                        final RoomModel roomAbove = rooms[cy-1][cx];
 
                         //Does the room above has a door pointing downwards?
-                        if (roomAbove.hasDoor(Room.DoorPosition.S)) {
-                            thisRoom.setDoor(Room.DoorPosition.N, roomAbove.getDoor(Room.DoorPosition.S));
+                        if (roomAbove.hasDoor(RoomModel.DoorPosition.S)) {
+                            thisRoom.setDoor(RoomModel.DoorPosition.N, roomAbove.getDoor(RoomModel.DoorPosition.S));
                         } else {
                             if (RandomUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
-                                thisRoom.setDoor(Room.DoorPosition.N, doorOffset);
-                                roomAbove.setDoor(Room.DoorPosition.S, doorOffset);
+                                thisRoom.setDoor(RoomModel.DoorPosition.N, doorOffset);
+                                roomAbove.setDoor(RoomModel.DoorPosition.S, doorOffset);
                             }
                         }
                     }
 
                     //West door
                     if (cx>0) {
-                        final Room roomLeft = rooms[cy][cx-1];
+                        final RoomModel roomLeft = rooms[cy][cx-1];
 
                         //Does the room to the left has a door pointing right?
-                        if (roomLeft.hasDoor(Room.DoorPosition.E)) {
-                            thisRoom.setDoor(Room.DoorPosition.W, roomLeft.getDoor(Room.DoorPosition.E));
+                        if (roomLeft.hasDoor(RoomModel.DoorPosition.E)) {
+                            thisRoom.setDoor(RoomModel.DoorPosition.W, roomLeft.getDoor(RoomModel.DoorPosition.E));
                         } else {
                             if (RandomUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
-                                thisRoom.setDoor(Room.DoorPosition.W, doorOffset);
-                                roomLeft.setDoor(Room.DoorPosition.E, doorOffset);
+                                thisRoom.setDoor(RoomModel.DoorPosition.W, doorOffset);
+                                roomLeft.setDoor(RoomModel.DoorPosition.E, doorOffset);
                             }
                         }
                     }
 
                     //East door
-                    if (cx<(this.roomsX-1)) {
-                        final Room roomRight = rooms[cy][cx+1];
+                    if (cx<(this.getRoomsX() -1)) {
+                        final RoomModel roomRight = rooms[cy][cx+1];
 
                         //Does the room to the right has a door pointing left?
-                        if (roomRight.hasDoor(Room.DoorPosition.W)) {
-                            thisRoom.setDoor(Room.DoorPosition.E, roomRight.getDoor(Room.DoorPosition.W));
+                        if (roomRight.hasDoor(RoomModel.DoorPosition.W)) {
+                            thisRoom.setDoor(RoomModel.DoorPosition.E, roomRight.getDoor(RoomModel.DoorPosition.W));
                         } else {
                             if (RandomUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
-                                thisRoom.setDoor(Room.DoorPosition.E, doorOffset);
-                                roomRight.setDoor(Room.DoorPosition.W, doorOffset);
+                                thisRoom.setDoor(RoomModel.DoorPosition.E, doorOffset);
+                                roomRight.setDoor(RoomModel.DoorPosition.W, doorOffset);
                             }
                         }
                     }
@@ -186,11 +186,26 @@ public class Cave {
 
 
         //Now paint the interior of the rooms
-        for (int cy=0; cy<this.roomsY; cy++) {
-            for (int cx=0; cx<this.roomsX; cx++) {
+        for (int cy=0; cy< this.getRoomsY(); cy++) {
+            for (int cx=0; cx< this.getRoomsX(); cx++) {
                 rooms[cy][cx].createInterior();
             }
         }
     }
 
+    public Integer getRoomsX() {
+        return roomsX;
+    }
+
+    public void setRoomsX(Integer roomsX) {
+        this.roomsX = roomsX;
+    }
+
+    public Integer getRoomsY() {
+        return roomsY;
+    }
+
+    public void setRoomsY(Integer roomsY) {
+        this.roomsY = roomsY;
+    }
 }

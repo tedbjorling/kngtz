@@ -1,9 +1,9 @@
-package com.holidaystudios.kngt.gameplay;
+package com.holidaystudios.kngt;
 
 /**
  * Created by tedbjorling on 2014-02-24.
  */
-public class GamePlayTiles {
+public class TileTypes {
 
     public final static Integer TILE_NONE   = 0;
     public final static Integer TILE_FLOOR  = 1;

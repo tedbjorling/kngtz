@@ -4,9 +4,8 @@ package com.holidaystudios.kngt;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.holidaystudios.kngt.screens.GameScreen;
-import com.holidaystudios.kngt.gameplay.GamePlayAssets;
-import com.holidaystudios.kngt.gameplay.GamePlayScreen;
+import com.holidaystudios.kngt.view.UIAssets;
+import com.holidaystudios.kngt.view.GamePlayScreen;
 
 public class KngtzMain extends Game {
 
@@ -18,7 +17,7 @@ public class KngtzMain extends Game {
         Gdx.app.log( KngtzMain.LOG, "Creating game" );
 
         batch = new SpriteBatch();
-        GamePlayAssets.load();
+        UIAssets.load();
 
         this.setScreen(new GamePlayScreen());
 	}

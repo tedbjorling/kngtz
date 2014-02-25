@@ -1,7 +1,7 @@
-package com.holidaystudios.kngt.entities;
+package com.holidaystudios.kngt.model;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.holidaystudios.kngt.gameplay.GamePlayTiles;
+import com.holidaystudios.kngt.TileTypes;
 import com.holidaystudios.kngt.tools.RandomUtils;
 
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Created by tedbjorling on 2014-02-20.
  */
-public class Room {
+public class RoomModel {
 
     public enum DoorPosition {
         S, W, E, N
@@ -21,7 +21,7 @@ public class Room {
     private Integer[][] bitmap;
     private Map<DoorPosition, Integer> doors = new HashMap<DoorPosition, Integer>();
 
-    public Room(final Integer posX, final Integer posY, final Integer tilesPerDistance) {
+    public RoomModel(final Integer posX, final Integer posY, final Integer tilesPerDistance) {
         this.posX = posX;
         this.posY = posY;
 
@@ -42,7 +42,7 @@ public class Room {
         for (int y=0; y<this.pixelHeight; y++) {
             bitmap[y] = new Integer[this.pixelWidth];
             for (int x=0; x<this.pixelWidth; x++) {
-                bitmap[y][x] = GamePlayTiles.TILE_NONE;
+                bitmap[y][x] = TileTypes.TILE_NONE;
             }
         }
     }
@@ -89,20 +89,20 @@ public class Room {
             for (int y=0; y<this.tilesPerDistance; y++) {
 
                 //Is any of my neighbours a floor tile? If so, I am a wall
-                if (this.bitmap[y][x] == GamePlayTiles.TILE_FLOOR) {
+                if (this.bitmap[y][x] == TileTypes.TILE_FLOOR) {
                     continue;
                 }
 
                 int l = this.tilesPerDistance-1;
-                if ((y>0 && x>0 && this.bitmap[y-1][x-1] == GamePlayTiles.TILE_FLOOR)
-                ||  (y>0 && 	   this.bitmap[y-1][x]   == GamePlayTiles.TILE_FLOOR)
-                ||  (y>0 && x<l && this.bitmap[y-1][x+1] == GamePlayTiles.TILE_FLOOR)
-                ||  (       x>0 && this.bitmap[y][x-1]   == GamePlayTiles.TILE_FLOOR)
-                ||  (       x<l && this.bitmap[y][x+1]   == GamePlayTiles.TILE_FLOOR)
-                ||  (y<l && x>0 && this.bitmap[y+1][x-1] == GamePlayTiles.TILE_FLOOR)
-                ||  (y<l && 	   this.bitmap[y+1][x]   == GamePlayTiles.TILE_FLOOR)
-                ||  (y<l && x<l && this.bitmap[y+1][x+1] == GamePlayTiles.TILE_FLOOR)) {
-                    this.bitmap[y][x] = GamePlayTiles.TILE_WALL;
+                if ((y>0 && x>0 && this.bitmap[y-1][x-1] == TileTypes.TILE_FLOOR)
+                ||  (y>0 && 	   this.bitmap[y-1][x]   == TileTypes.TILE_FLOOR)
+                ||  (y>0 && x<l && this.bitmap[y-1][x+1] == TileTypes.TILE_FLOOR)
+                ||  (       x>0 && this.bitmap[y][x-1]   == TileTypes.TILE_FLOOR)
+                ||  (       x<l && this.bitmap[y][x+1]   == TileTypes.TILE_FLOOR)
+                ||  (y<l && x>0 && this.bitmap[y+1][x-1] == TileTypes.TILE_FLOOR)
+                ||  (y<l && 	   this.bitmap[y+1][x]   == TileTypes.TILE_FLOOR)
+                ||  (y<l && x<l && this.bitmap[y+1][x+1] == TileTypes.TILE_FLOOR)) {
+                    this.bitmap[y][x] = TileTypes.TILE_WALL;
                 }
             }
         }
@@ -163,7 +163,7 @@ public class Room {
                     ||  y == dim.y || y == dim.y+dim.height-1) {
                         //room.bitmap[y][x] = defs.tiles.types.wall;
                     } else {
-                        this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
+                        this.bitmap[y][x] = TileTypes.TILE_FLOOR;
                     }
                 }
             }
@@ -180,7 +180,7 @@ public class Room {
                         if (y == 0 || y == this.tilesPerDistance-1) {
                             //room.bitmap[y][x] = defs.tiles.types.wall;
                         } else {
-                            this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
+                            this.bitmap[y][x] = TileTypes.TILE_FLOOR;
                         }
                     }
                 }
@@ -200,7 +200,7 @@ public class Room {
                         if (y == 0 || y == this.tilesPerDistance-1) {
                             //room.bitmap[y][_x] = defs.tiles.types.wall;
                         } else {
-                            this.bitmap[y][_x] = GamePlayTiles.TILE_FLOOR;
+                            this.bitmap[y][_x] = TileTypes.TILE_FLOOR;
                         }
                     }
                 }
@@ -218,7 +218,7 @@ public class Room {
 
                 for (int x=startX; x<endX; x++) {
                     for (int y=kneeStart; y<kneeStart+corridorBreadth; y++) {
-                        this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
+                        this.bitmap[y][x] = TileTypes.TILE_FLOOR;
                     }
                 }
             }
@@ -237,7 +237,7 @@ public class Room {
                         if (x == 0 || x == this.tilesPerDistance-1) {
                             //room.bitmap[y][x] = defs.tiles.types.wall;
                         } else {
-                            this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
+                            this.bitmap[y][x] = TileTypes.TILE_FLOOR;
                         }
                     }
                 }
@@ -257,7 +257,7 @@ public class Room {
                         if (x == 0 || x == this.tilesPerDistance-1) {
                             //room.bitmap[_y][x] = defs.tiles.types.wall;
                         } else {
-                            this.bitmap[_y][x] = GamePlayTiles.TILE_FLOOR;
+                            this.bitmap[_y][x] = TileTypes.TILE_FLOOR;
                         }
                     }
                 }
@@ -276,7 +276,7 @@ public class Room {
 
                 for (int y=startY; y<endY; y++) {
                     for (int x=kneeStart; x<kneeStart+corridorBreadth; x++) {
-                        this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
+                        this.bitmap[y][x] = TileTypes.TILE_FLOOR;
                     }
                 }
             }
@@ -336,9 +336,9 @@ public class Room {
                     for (int x=(int)dim.x; x<dim.x+dim.width; x++) {
                         if (x == dim.x || x == dim.x+dim.width-1
                         ||  y == dim.y || y == dim.y+dim.height-1) {
-                            this.bitmap[y][x] = GamePlayTiles.TILE_WALL;
+                            this.bitmap[y][x] = TileTypes.TILE_WALL;
                         } else {
-                            this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
+                            this.bitmap[y][x] = TileTypes.TILE_FLOOR;
                         }
                     }
                 }
@@ -438,9 +438,9 @@ public class Room {
                     for (int x=0; x<this.pixelWidth; x++) {
                         if (x == 0 || x == this.pixelWidth-1
                         ||  y == 0 || y == this.pixelHeight-1) {
-                            this.bitmap[y][x] = GamePlayTiles.TILE_WALL;
+                            this.bitmap[y][x] = TileTypes.TILE_WALL;
                         } else {
-                            this.bitmap[y][x] = GamePlayTiles.TILE_FLOOR;
+                            this.bitmap[y][x] = TileTypes.TILE_FLOOR;
                         }
                     }
                 }
@@ -449,19 +449,19 @@ public class Room {
 
         //Apply doors to local bitmap
         if (this.hasDoor(DoorPosition.S)) {
-            this.bitmap[this.pixelHeight-1][this.getDoor(DoorPosition.S)] = GamePlayTiles.TILE_DOOR;
+            this.bitmap[this.pixelHeight-1][this.getDoor(DoorPosition.S)] = TileTypes.TILE_DOOR;
         }
 
         if (this.hasDoor(DoorPosition.N)) {
-            this.bitmap[0][this.getDoor(DoorPosition.N)] = GamePlayTiles.TILE_DOOR;
+            this.bitmap[0][this.getDoor(DoorPosition.N)] = TileTypes.TILE_DOOR;
         }
 
         if (this.hasDoor(DoorPosition.W)) {
-            this.bitmap[this.getDoor(DoorPosition.W)][0] = GamePlayTiles.TILE_DOOR;
+            this.bitmap[this.getDoor(DoorPosition.W)][0] = TileTypes.TILE_DOOR;
         }
 
         if (this.hasDoor(DoorPosition.E)) {
-            this.bitmap[this.getDoor(DoorPosition.E)][this.pixelWidth-1] = GamePlayTiles.TILE_DOOR;
+            this.bitmap[this.getDoor(DoorPosition.E)][this.pixelWidth-1] = TileTypes.TILE_DOOR;
         }
 
     }

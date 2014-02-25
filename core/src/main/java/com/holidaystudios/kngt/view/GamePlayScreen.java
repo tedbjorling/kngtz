@@ -1,4 +1,4 @@
-package com.holidaystudios.kngt.gameplay;
+package com.holidaystudios.kngt.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -13,26 +13,23 @@ import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.holidaystudios.kngt.entities.Game;
+import com.holidaystudios.kngt.Defs;
+import com.holidaystudios.kngt.TileTypes;
+import com.holidaystudios.kngt.model.GameModel;
+import com.holidaystudios.kngt.view.actors.PlayerKnight;
 
 public class GamePlayScreen implements Screen, GestureListener {
+
     private Stage stage;
     public PlayerKnight playerKnight;
 
-
-    public final Integer TILE_SIZE = 64;
-    public final Integer TILES_PER_DISTANCE = 15;
-    static final Integer VIEW_WIDTH  = 800;
-    static final Integer VIEW_HEIGHT = 480;
-
-    private Game game;
+    private GameModel game;
     private TiledMap map;
     private TiledMapRenderer renderer;
     private OrthographicCamera camera;
-    private Rectangle glViewport;
+
 
     public GamePlayScreen() {
         stage = new Stage();
@@ -41,35 +38,44 @@ public class GamePlayScreen implements Screen, GestureListener {
         stage.addActor(playerKnight);
 
         //Load assets
-        GamePlayAssets.load();
+        UIAssets.load();
 
-        Integer dimension = TILES_PER_DISTANCE * TILE_SIZE;
+        Integer dimension = Defs.TILES_PER_DISTANCE * Defs.TILE_SIZE;
 
         camera = new OrthographicCamera(dimension, dimension);
         camera.position.set(dimension / 2, dimension / 2, 0);
-        //camera.zoom = 2f;
         camera.update();
         stage.setCamera(camera);
 
-        game = new Game("Foo", 10, 10, 15);
+        game = new GameModel("Foo", 10, 10, 15);
+        game.addKnight();
+        setRoom(1, 0);
+    }
+
+    public void setRoom(final Integer cx, final Integer cy) {
         map = new TiledMap();
         MapLayers layers = map.getLayers();
-        TiledMapTileLayer layer = new TiledMapTileLayer(TILES_PER_DISTANCE, TILES_PER_DISTANCE, TILE_SIZE, TILE_SIZE);
+        TiledMapTileLayer layer = new TiledMapTileLayer(
+            Defs.TILES_PER_DISTANCE,
+            Defs.TILES_PER_DISTANCE,
+            Defs.TILE_SIZE,
+            Defs.TILE_SIZE
+        );
 
         //Add the first room
-        Integer[][] bitmap = game.getRoomBitmap(1, 0);
+        Integer[][] bitmap = game.getRoomBitmap(cx, cy);
         for (int y=0; y<bitmap.length; y++) {
             for (int x=0; x<bitmap[y].length; x++) {
                 final Integer p = bitmap[y][x];
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
                 StaticTiledMapTile mapTile = null;
 
-                if (p == GamePlayTiles.TILE_FLOOR) {
-                    mapTile = new StaticTiledMapTile(new TextureRegion(GamePlayAssets.floorTexture));
-                } else if (p == GamePlayTiles.TILE_WALL) {
-                    mapTile = new StaticTiledMapTile(new TextureRegion(GamePlayAssets.wallTexture));
-                } else if (p == GamePlayTiles.TILE_DOOR) {
-                    mapTile = new StaticTiledMapTile(new TextureRegion(GamePlayAssets.doorTexture));
+                if (p == TileTypes.TILE_FLOOR) {
+                    mapTile = new StaticTiledMapTile(new TextureRegion(UIAssets.floorTexture));
+                } else if (p == TileTypes.TILE_WALL) {
+                    mapTile = new StaticTiledMapTile(new TextureRegion(UIAssets.wallTexture));
+                } else if (p == TileTypes.TILE_DOOR) {
+                    mapTile = new StaticTiledMapTile(new TextureRegion(UIAssets.doorTexture));
                 }
                 cell.setTile(mapTile);
                 layer.setCell(x, y, cell);
@@ -80,7 +86,7 @@ public class GamePlayScreen implements Screen, GestureListener {
     }
 
     public void resize(int width, int height) {
-        stage.setViewport(TILE_SIZE * TILES_PER_DISTANCE, TILE_SIZE * TILES_PER_DISTANCE, true);
+        stage.setViewport(Defs.TILE_SIZE * Defs.TILES_PER_DISTANCE, Defs.TILE_SIZE * Defs.TILES_PER_DISTANCE, true);
         stage.getCamera().translate(-stage.getGutterWidth(), -stage.getGutterHeight(), 0);
     }
 

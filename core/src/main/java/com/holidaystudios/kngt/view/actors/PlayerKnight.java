@@ -1,13 +1,12 @@
-package com.holidaystudios.kngt.gameplay;
+package com.holidaystudios.kngt.view.actors;
 
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.Animation;
+import com.holidaystudios.kngt.Defs;
 import com.holidaystudios.kngt.tools.GifDecoder;
 
 public class PlayerKnight extends Actor {
@@ -34,11 +33,9 @@ public class PlayerKnight extends Actor {
     Direction enqueuedDirection = Direction.north;
 
     public PlayerKnight() {
-        setWidth(64);
-        setHeight(64);
-        setPosition(64, 64);
         setColor(Color.WHITE);
-
+        setWidth(Defs.TILE_SIZE);
+        setHeight(Defs.TILE_SIZE);
         knightAnimation = GifDecoder.loadGIFAnimation(Animation.LOOP, Gdx.files.internal("tiles/basic/gameplay-knight_red_walk.gif").read());
     }
 

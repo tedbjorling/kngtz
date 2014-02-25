@@ -1,9 +1,9 @@
-package com.holidaystudios.kngt.gameplay;
+package com.holidaystudios.kngt.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
-public class GamePlayAssets {
+public class UIAssets {
 
     public static Texture floorTexture;
     public static Texture wallTexture;
