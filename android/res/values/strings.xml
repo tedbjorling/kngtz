@@ -2,5 +2,8 @@
 <resources>
 
     <string name="app_name">Knight Or Die</string>
+    <string name="gameserver_started">Knight Or Die Server Is Up</string>
 
+    <string name="start_new_server">Launch Server</string>
+    <string name="connect_to_server">Connect To Game</string>
 </resources>

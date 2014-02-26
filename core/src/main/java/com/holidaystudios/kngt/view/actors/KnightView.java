@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.holidaystudios.kngt.Defs;
 import com.holidaystudios.kngt.Direction;
-import com.holidaystudios.kngt.tools.GifDecoder;
+import com.holidaystudios.kngt.view.UIAssets;
 
 public class KnightView extends Actor {
 
@@ -26,7 +26,6 @@ public class KnightView extends Actor {
     float positionYDelta = 0.0f;
     State state = State.stand;
     Direction direction = Direction.north;
-    static Animation knightAnimation;
 
     boolean newMoveEnqueued = false;
     Direction enqueuedDirection = Direction.north;
@@ -35,7 +34,6 @@ public class KnightView extends Actor {
         setColor(Color.WHITE);
         setWidth(Defs.TILE_SIZE);
         setHeight(Defs.TILE_SIZE);
-        knightAnimation = GifDecoder.loadGIFAnimation(Animation.LOOP, Gdx.files.internal("tiles/basic/gameplay-knight_red_walk.gif").read());
     }
 
     private void doWalk() {
@@ -113,7 +111,7 @@ public class KnightView extends Actor {
     @Override
     public void draw(SpriteBatch batch, float parentAlpha) {
         batch.setColor(getColor().r, getColor().g, getColor().b, getColor().a);
-        batch.draw(knightAnimation.getKeyFrame(stateTime), getX() + positionXDelta, getY() + positionYDelta, 32.0f, 32.0f, 64.0f, 64.0f, 1.0f, 1.0f, getRotation());
+        batch.draw(UIAssets.knightAnimation.getKeyFrame(stateTime), getX() + positionXDelta, getY() + positionYDelta, 32.0f, 32.0f, 64.0f, 64.0f, 1.0f, 1.0f, getRotation());
     }
 
     private void updateBounds() {
@@ -134,7 +132,7 @@ public class KnightView extends Actor {
             direction = _direction;
             state = State.walk;
             stateTime = 0.0f;
-            stateDuration = knightAnimation.animationDuration;
+            stateDuration = UIAssets.knightAnimation.animationDuration;
 
             switch(direction) {
                 case north:
