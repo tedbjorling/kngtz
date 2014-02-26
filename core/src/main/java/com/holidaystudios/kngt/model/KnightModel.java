@@ -11,7 +11,6 @@ public class KnightModel {
     private Integer posY;
 
     public KnightModel() {
-
     }
 
     public Integer getRoomX() {
