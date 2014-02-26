@@ -81,6 +81,8 @@ public class GameView implements Screen, GestureListener, InputProcessor {
                     mapTile = new StaticTiledMapTile(new TextureRegion(UIAssets.wallTexture));
                 } else if (p == TileTypes.TILE_DOOR) {
                     mapTile = new StaticTiledMapTile(new TextureRegion(UIAssets.doorTexture));
+                } else {
+                    mapTile = new StaticTiledMapTile(new TextureRegion(UIAssets.emptyTexture));
                 }
                 cell.setTile(mapTile);
                 layer.setCell(x, y, cell);
