@@ -1,5 +1,6 @@
 package com.holidaystudios.kngt.model;
 
+import com.holidaystudios.kngt.Defs;
 import com.holidaystudios.kngt.TileTypes;
 import com.holidaystudios.kngt.tools.RandomUtils;
 
@@ -11,14 +12,12 @@ public class CaveModel {
     private String seed;
     private Integer roomsX;
     private Integer roomsY;
-    private Integer tilesPerDistance;
     private RoomModel[][] rooms;
 
-    public CaveModel(final String seed, final Integer roomsX, final Integer roomsY, final Integer tilesPerDistance) {
+    public CaveModel(final String seed, final Integer roomsX, final Integer roomsY) {
         RandomUtils.setSeed(seed);
         this.setRoomsX(roomsX);
         this.setRoomsY(roomsY);
-        this.tilesPerDistance = tilesPerDistance;
 
         //Start mapping out the individual rooms
         this.createRooms();
@@ -32,14 +31,14 @@ public class CaveModel {
 
     public Integer[][] getBitmap() {
 
-        final Integer[][] caveBitmap = new Integer[this.tilesPerDistance*rooms.length][this.tilesPerDistance*rooms.length];
+        final Integer[][] caveBitmap = new Integer[Defs.TILES_PER_DISTANCE*rooms.length][Defs.TILES_PER_DISTANCE*rooms.length];
 
         //Fill the main bitmap
         for (int cy=0; cy<rooms.length; cy++) {
             for (int cx=0; cx<rooms[cy].length; cx++) {
                 final Integer[][] bitmap = rooms[cy][cx].getBitmap();
-                final Integer offsetX = cx*this.tilesPerDistance;
-                final Integer offsetY = cy*this.tilesPerDistance;
+                final Integer offsetX = cx*Defs.TILES_PER_DISTANCE;
+                final Integer offsetY = cy*Defs.TILES_PER_DISTANCE;
 
                 for (int y=0; y<bitmap.length; y++) {
                     for (int x=0; x<bitmap[y].length; x++) {
@@ -94,7 +93,7 @@ public class CaveModel {
     }
 
     private Integer createDoorPositionHelper() {
-        return 2 + (int) Math.round(RandomUtils.getRandom() * (this.tilesPerDistance-4));
+        return 2 + (int) Math.round(RandomUtils.getRandom() * (Defs.TILES_PER_DISTANCE-4));
     }
 
     private void createRooms() {
@@ -104,7 +103,7 @@ public class CaveModel {
         for (int cy=0; cy< this.getRoomsY(); cy++) {
             rooms[cy] = new RoomModel[this.getRoomsX()];
             for (int cx=0; cx< this.getRoomsX(); cx++) {
-                rooms[cy][cx] = new RoomModel(cx, cy, this.tilesPerDistance);
+                rooms[cy][cx] = new RoomModel(cx, cy, Defs.TILES_PER_DISTANCE);
             }
         }
 

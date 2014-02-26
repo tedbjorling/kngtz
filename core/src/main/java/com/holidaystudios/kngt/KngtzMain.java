@@ -1,13 +1,12 @@
 
 package com.holidaystudios.kngt;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.holidaystudios.kngt.controller.Game;
 import com.holidaystudios.kngt.view.UIAssets;
-import com.holidaystudios.kngt.view.GamePlayScreen;
 
-public class KngtzMain extends Game {
+public class KngtzMain extends com.badlogic.gdx.Game {
 
     public static final String LOG = KngtzMain.class.getSimpleName();
     public SpriteBatch batch;
@@ -19,7 +18,8 @@ public class KngtzMain extends Game {
         batch = new SpriteBatch();
         UIAssets.load();
 
-        this.setScreen(new GamePlayScreen());
+        final Game game = new Game();
+        this.setScreen(game.getView());
 	}
 
 	@Override

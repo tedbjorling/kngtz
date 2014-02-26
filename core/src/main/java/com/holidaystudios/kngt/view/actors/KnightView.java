@@ -7,12 +7,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.holidaystudios.kngt.Defs;
+import com.holidaystudios.kngt.Direction;
 import com.holidaystudios.kngt.tools.GifDecoder;
 
-public class PlayerKnight extends Actor {
-    public enum Direction {
-        east, west, north, south
-    };
+public class KnightView extends Actor {
+
 
     private enum State {
         stand, walk
@@ -32,7 +31,7 @@ public class PlayerKnight extends Actor {
     boolean newMoveEnqueued = false;
     Direction enqueuedDirection = Direction.north;
 
-    public PlayerKnight() {
+    public KnightView() {
         setColor(Color.WHITE);
         setWidth(Defs.TILE_SIZE);
         setHeight(Defs.TILE_SIZE);

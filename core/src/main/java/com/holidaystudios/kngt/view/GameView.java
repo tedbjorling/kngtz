@@ -1,6 +1,8 @@
 package com.holidaystudios.kngt.view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -14,45 +16,50 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.holidaystudios.kngt.Defs;
+import com.holidaystudios.kngt.Direction;
 import com.holidaystudios.kngt.TileTypes;
 import com.holidaystudios.kngt.model.GameModel;
-import com.holidaystudios.kngt.view.actors.PlayerKnight;
 
-public class GamePlayScreen implements Screen, GestureListener {
+import java.util.ArrayList;
+import java.util.List;
+
+public class GameView implements Screen, GestureListener, InputProcessor {
 
     private Stage stage;
-    public PlayerKnight playerKnight;
 
     private GameModel game;
     private TiledMap map;
     private TiledMapRenderer renderer;
     private OrthographicCamera camera;
 
+    private List<ViewListener> listeners = new ArrayList<ViewListener>();
 
-    public GamePlayScreen() {
+    public void addListener(final ViewListener toAdd) {
+        listeners.add(toAdd);
+    }
+
+    public GameView() {
         stage = new Stage();
 
-        playerKnight = new PlayerKnight();
-        stage.addActor(playerKnight);
-
-        //Load assets
-        UIAssets.load();
-
-        Integer dimension = Defs.TILES_PER_DISTANCE * Defs.TILE_SIZE;
-
+        final Integer dimension = Defs.TILES_PER_DISTANCE * Defs.TILE_SIZE;
         camera = new OrthographicCamera(dimension, dimension);
         camera.position.set(dimension / 2, dimension / 2, 0);
         camera.update();
         stage.setCamera(camera);
-
-        game = new GameModel("Foo", 10, 10, 15);
-        game.addKnight();
-        setRoom(1, 0);
     }
 
-    public void setRoom(final Integer cx, final Integer cy) {
+    public void addToStage(final Actor actor) {
+        stage.addActor(actor);
+    }
+
+    public void clearStage() {
+        stage.clear();
+    }
+
+    public void renderRoom(final Integer[][] bitmap) {
         map = new TiledMap();
         MapLayers layers = map.getLayers();
         TiledMapTileLayer layer = new TiledMapTileLayer(
@@ -62,8 +69,6 @@ public class GamePlayScreen implements Screen, GestureListener {
             Defs.TILE_SIZE
         );
 
-        //Add the first room
-        Integer[][] bitmap = game.getRoomBitmap(cx, cy);
         for (int y=0; y<bitmap.length; y++) {
             for (int x=0; x<bitmap[y].length; x++) {
                 final Integer p = bitmap[y][x];
@@ -106,7 +111,10 @@ public class GamePlayScreen implements Screen, GestureListener {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(new GestureDetector(this));
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(new GestureDetector(this));
+        multiplexer.addProcessor(this);
+        Gdx.input.setInputProcessor(multiplexer);
     }
 
     @Override
@@ -128,19 +136,64 @@ public class GamePlayScreen implements Screen, GestureListener {
         }
 
         if(Math.abs(velocity) > 10.0f) {
+            Direction d = null;
             if(velocity < 0.0f) {
                 if(horizontalMovement)
-                    playerKnight.move(PlayerKnight.Direction.west);
+                    d = Direction.west;
                 else
-                    playerKnight.move(PlayerKnight.Direction.north);
+                    d = Direction.north;
             } else {
                 if(horizontalMovement)
-                    playerKnight.move(PlayerKnight.Direction.east);
+                    d = Direction.east;
                 else
-                    playerKnight.move(PlayerKnight.Direction.south);
+                    d = Direction.south;
             }
+            for (ViewListener vl : listeners)
+                vl.handleViewEvent(ViewListener.EventType.fling, d);
         }
 
+        return false;
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        for (ViewListener vl : listeners)
+            vl.handleViewEvent(ViewListener.EventType.keyDown, new Integer(keycode));
+       return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(int amount) {
         return false;
     }
 

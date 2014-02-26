@@ -2,6 +2,7 @@ package com.holidaystudios.kngt.model;
 
 import com.holidaystudios.kngt.Defs;
 import com.holidaystudios.kngt.TileTypes;
+import com.holidaystudios.kngt.controller.Knight;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,33 +13,31 @@ import java.util.List;
 public class GameModel {
 
     private CaveModel cave;
-    private List<KnightModel> knights;
+    private List<Knight> knights;
 
-    public GameModel(final String seed, final Integer roomsX, final Integer roomsY, final Integer tilesPerDistance) {
-        cave = new CaveModel(seed, roomsX, roomsY, tilesPerDistance);
-        knights =  new ArrayList<KnightModel>();
+    public GameModel(final String seed, final Integer roomsX, final Integer roomsY) {
+        cave = new CaveModel(seed, roomsX, roomsY);
+        knights =  new ArrayList<Knight>();
     }
 
-    public KnightModel addKnight() {
-        final KnightModel knight = new KnightModel();
+    public void addKnight(final Knight knight) {
 
         //Pick a random room
-        knight.setRoomX((int) Math.round(Math.random() * cave.getRoomsX()));
-        knight.setRoomY((int) Math.round(Math.random() * cave.getRoomsY()));
+        final Integer roomX = (int) Math.floor(Math.random() * cave.getRoomsX());
+        final Integer roomY = (int) Math.floor(Math.random() * cave.getRoomsY());
+        knight.setRoom(roomX, roomY);
 
         //Pick a random "available" position inside of this room
-        final Integer[][] bitmap = cave.getRoomBitmap(knight.getRoomX(), knight.getRoomY());
+        final Integer[][] bitmap = cave.getRoomBitmap(roomX, roomY);
         while (true) {
-            final Integer randPosX = (int) Math.round(Math.random() * Defs.TILES_PER_DISTANCE);
-            final Integer randPosY = (int) Math.round(Math.random() * Defs.TILES_PER_DISTANCE);
+            final Integer randPosX = (int) Math.floor(Math.random() * Defs.TILES_PER_DISTANCE);
+            final Integer randPosY = (int) Math.floor(Math.random() * Defs.TILES_PER_DISTANCE);
             if (bitmap[randPosY][randPosX] == TileTypes.TILE_FLOOR) {
-                knight.setPosX(randPosX);
-                knight.setPosY(randPosY);
+                knight.setPosition(randPosX, randPosY);
                 break;
             }
         }
         knights.add(knight);
-        return knight;
     }
 
     public Integer[][] getBitmap() {
