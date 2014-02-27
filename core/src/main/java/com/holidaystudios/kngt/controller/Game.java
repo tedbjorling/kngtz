@@ -2,7 +2,6 @@ package com.holidaystudios.kngt.controller;
 
 import com.badlogic.gdx.Input;
 import com.holidaystudios.kngt.Direction;
-import com.holidaystudios.kngt.TileTypes;
 import com.holidaystudios.kngt.model.GameModel;
 import com.holidaystudios.kngt.view.GameView;
 import com.holidaystudios.kngt.view.ViewListener;
@@ -10,7 +9,7 @@ import com.holidaystudios.kngt.view.ViewListener;
 /**
  * Created by tedbjorling on 2014-02-26.
  */
-public class Game implements ViewListener {
+public class Game implements ViewListener, ControllerListener {
 
     private GameModel model;
     private GameView view;
@@ -24,18 +23,20 @@ public class Game implements ViewListener {
         view.addListener(this);
 
         //Add a knight
-        knight = new Knight();
+        knight = new Knight(this);
+        knight.addListener(this); //Listen for events
         model.addKnight(knight);
 
         /*
-        knight.getModel().setRoomX(4);
-        knight.getModel().setRoomY(3);
-        System.out.println("Room : " + knight.getModel().getRoomX() + ", " + knight.getModel().getRoomY());
-        System.out.println("Pos  : " + knight.getModel().getPosX() + ", " + knight.getModel().getPosY());
+        knight.getModel().setRoomX(0);
+        knight.getModel().setRoomY(2);
         */
 
         view.addToStage(knight.getView());
         view.renderRoom(model.getRoomBitmap(knight.getModel().getRoomX(), knight.getModel().getRoomY()));
+
+        //knight.setPosition(12, 1);
+        //System.out.println(knight);
     }
 
     public GameModel getModel() {
@@ -46,44 +47,18 @@ public class Game implements ViewListener {
         return view;
     }
 
-    private boolean canMoveInDirection(final Knight knight, final Direction dir) {
-        Integer posX = knight.getModel().getPosX();
-        Integer posY = knight.getModel().getPosY();
-        switch (dir) {
-            case east: posX++; break;
-            case west: posX--; break;
-            case north: posY--; break;
-            case south: posY++; break;
-        }
-        final Integer[][] bitmap = model.getRoomBitmap(knight.getModel().getRoomX(), knight.getModel().getRoomY());
-        return bitmap[posY][posX] == TileTypes.TILE_FLOOR;
-    }
-
-    private void handleMovement(final Knight knight, final Direction dir) {
-        Integer posX = knight.getModel().getPosX();
-        Integer posY = knight.getModel().getPosY();
-        switch (dir) {
-            case east: posX++; break;
-            case west: posX--; break;
-            case north: posY--; break;
-            case south: posY++; break;
-        }
-        final Integer targetTile = model.getRoomBitmap(knight.getModel().getRoomX(), knight.getModel().getRoomY())[posY][posX];
-
-        if (targetTile == TileTypes.TILE_FLOOR) {
-            knight.move(dir);
-        } else if (targetTile == TileTypes.TILE_DOOR) {
-
-        }
+    private void handleMovement(final Knight knight, final Direction dir, final Boolean sticky) {
+        knight.move(dir, sticky);
     }
 
     @Override
-    public void handleViewEvent(final EventType type, final Object data) {
+    public void handleViewEvent(final ViewListener.EventType type, final Object data) {
         switch (type) {
             case fling: {
-                    handleMovement(knight, (Direction) data);
+                    handleMovement(knight, (Direction) data, false);
                 }
                 break;
+
             case keyDown: {
                     final Integer key = (Integer) data;
                     Direction dir = null;
@@ -102,9 +77,44 @@ public class Game implements ViewListener {
                             break;
                     }
                     if (dir != null) {
-                        handleMovement(knight, dir);
+                        handleMovement(knight, dir, true);
                     }
                 }
+                break;
+
+            case keyUp:
+                final Integer key = (Integer) data;
+                Direction dir = null;
+                switch (key) {
+                    case Input.Keys.UP:
+                        dir = Direction.north;
+                        break;
+                    case Input.Keys.DOWN:
+                        dir = Direction.south;
+                        break;
+                    case Input.Keys.LEFT:
+                        dir = Direction.west;
+                        break;
+                    case Input.Keys.RIGHT:
+                        dir = Direction.east;
+                        break;
+                }
+                if (dir != null) {
+                    knight.stopMoving(dir);
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void handleControllerEvent(ControllerListener.EventType type, Object emitter, Object data) {
+        switch (type) {
+            case knightNewRoom:
+                final Knight knight = (Knight) emitter;
+                final Direction d = (Direction) data;
+
+                knight.gotoNextRoom(d);
+                view.renderRoom(model.getRoomBitmap(knight.getModel().getRoomX(), knight.getModel().getRoomY()));
                 break;
         }
     }

@@ -21,8 +21,6 @@ public class CaveModel {
 
         //Start mapping out the individual rooms
         this.createRooms();
-
-        this.debugCave();
     }
 
     public Integer[][] getRoomBitmap(final Integer cx, final Integer cy) {
@@ -62,34 +60,37 @@ public class CaveModel {
         return caveBitmap;
     }
 
-    private void debugCave() {
+    @Override
+    public String toString() {
+
+        final StringBuilder sb = new StringBuilder();
 
         final Integer[][] caveBitmap = this.getBitmap();
 
-        //Output the cave bitmap to console
         for (int y=0; y<caveBitmap.length; y++) {
             for (int x=0; x<caveBitmap[y].length; x++) {
                 final Integer p = caveBitmap[y][x];
 
                 if (p == 2000) {
-                    System.out.print(',');
+                    sb.append(',');
                 } else if (p >= 1000) {
-                    System.out.print(Integer.toString(p-1000)); //Stupid java
+                    sb.append(Integer.toString(p - 1000));
                 } else {
 
                     if (p == TileTypes.TILE_FLOOR) {
-                        System.out.print('.');
+                        sb.append('.');
                     } else if (p == TileTypes.TILE_WALL) {
-                        System.out.print('#');
+                        sb.append('#');
                     } else if (p == TileTypes.TILE_DOOR) {
-                        System.out.print('O');
+                        sb.append('O');
                     } else {
-                        System.out.print(' ');
+                        sb.append(' ');
                     }
                 }
             }
-            System.out.println();
+            sb.append(System.lineSeparator());
         }
+        return sb.toString();
     }
 
     private Integer createDoorPositionHelper() {

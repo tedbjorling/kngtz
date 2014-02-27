@@ -22,6 +22,11 @@ public class KngtzMain extends com.badlogic.gdx.Game {
         this.setScreen(game.getView());
 	}
 
+    @Override
+    public void resume() {
+        UIAssets.refresh();
+    }
+
 	@Override
 	public void render ()
     {

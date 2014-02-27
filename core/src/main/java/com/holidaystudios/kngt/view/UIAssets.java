@@ -11,7 +11,8 @@ public class UIAssets {
     public static Texture floorTexture;
     public static Texture wallTexture;
     public static Texture doorTexture;
-    public static Texture knightTexture;
+
+    private static GifDecoder.GIFAnimation knightAnimation_GIF;
 
     public static Animation knightAnimation;
 
@@ -21,9 +22,13 @@ public class UIAssets {
         wallTexture = new Texture(Gdx.files.internal("tiles/basic/wall.png"));
         doorTexture = new Texture(Gdx.files.internal("tiles/basic/door.png"));
 
-        GifDecoder.AnimationTextureCouple atc =
-                GifDecoder.loadGIFAnimation(Animation.LOOP, Gdx.files.internal("tiles/basic/gameplay-knight_red_walk.gif").read());
-        knightAnimation = atc.animation;
-        knightTexture = atc.texture;
+        knightAnimation_GIF = GifDecoder.loadGIFAnimation(Animation.LOOP, Gdx.files.internal("tiles/basic/gameplay-knight_red_walk.gif").read());
+        refresh();
+    }
+
+    public static void refresh() {
+        // xxx because of some internal thing in libgdx the Texture that is created from a pixmap is not properly recovered when
+        // an Android activity resumes. So at resume, we mush recreate the Texture object using the same pixmap. (The pixmap seems to survive OK though..)
+        knightAnimation = knightAnimation_GIF.rebuildAnimation();
     }
 }

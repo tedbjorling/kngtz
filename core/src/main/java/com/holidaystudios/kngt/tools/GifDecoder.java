@@ -8,7 +8,6 @@ package com.holidaystudios.kngt.tools;
 import java.io.InputStream;
 import java.util.Vector;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -687,12 +686,47 @@ public class GifDecoder {
         } while ((blockSize > 0) && !err());
     }
 
-    public class AnimationTextureCouple {
-        public Texture texture;
-        public Animation animation;
+    public class GIFAnimation {
+        Pixmap pixmap;
+        int width, height, vzones, hzones, nrFrames, playType;
+        float frameDuration;
+
+        public GIFAnimation(Pixmap _pixmap, int _playType, int _nrFrames, int _hzones, int _vzones, int _width, int _height, float _frameDuration) {
+            pixmap = _pixmap;
+            nrFrames = _nrFrames;
+            playType = _playType;
+            hzones = _hzones;
+            vzones = _vzones;
+            width = _width;
+            height = _height;
+            frameDuration = _frameDuration;
+        }
+
+        public Animation rebuildAnimation() {
+            Animation animation;
+            Array<TextureRegion> texReg;
+
+            Texture texture = new Texture(pixmap);
+            texReg = new Array<TextureRegion>();
+
+            int h, v;
+            for(h = 0; h < hzones; h++) {
+                for(v = 0; v < vzones; v++) {
+                    int frameID = v + h * vzones;
+                    if(frameID < nrFrames) {
+                        TextureRegion tr = new TextureRegion(texture, h * width, v * height, width, height);
+                        texReg.add(tr);
+                    }
+                }
+            }
+            float frameDuration = (float)getDelay(0);
+            frameDuration /= 1000; // convert milliseconds into seconds
+
+            return new Animation(frameDuration, texReg, playType);
+        }
     }
 
-    public AnimationTextureCouple getAnimation(int playType) {
+    public GIFAnimation getAnimation(int playType) {
         int nrFrames = getFrameCount();
         Pixmap frame = getFrame(0);
         int width = frame.getWidth();
@@ -716,29 +750,12 @@ public class GifDecoder {
             }
         }
 
-        AnimationTextureCouple atcResult = new AnimationTextureCouple();
+        GIFAnimation result = new GIFAnimation(target, playType, nrFrames, hzones, vzones, width, height, getDelay(0));
 
-        atcResult.texture = new Texture(target);
-        Array<TextureRegion> texReg = new Array<TextureRegion>();
-
-        for(h = 0; h < hzones; h++) {
-            for(v = 0; v < vzones; v++) {
-                int frameID = v + h * vzones;
-                if(frameID < nrFrames) {
-                    TextureRegion tr = new TextureRegion(atcResult.texture, h * width, v * height, width, height);
-                    texReg.add(tr);
-                }
-            }
-        }
-        float frameDuration = (float)getDelay(0);
-        frameDuration /= 1000; // convert milliseconds into seconds
-
-        atcResult.animation = new Animation(frameDuration, texReg, playType);
-
-        return atcResult;
+        return result;
     }
 
-    public static AnimationTextureCouple loadGIFAnimation(int playType, InputStream is) {
+    public static GIFAnimation loadGIFAnimation(int playType, InputStream is) {
         GifDecoder gdec = new GifDecoder();
         gdec.read(is);
         return gdec.getAnimation(playType);

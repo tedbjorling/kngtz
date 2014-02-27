@@ -11,6 +11,7 @@ import android.os.IBinder;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.holidaystudios.kngt.KngtzMain;
+import com.holidaystudios.kngt.view.UIAssets;
 
 
 public class MainActivity extends AndroidApplication {
@@ -42,6 +43,11 @@ public class MainActivity extends AndroidApplication {
         Intent intent = new Intent(this, GameServerService.class);
         bindService(intent, gameServerConnection, Context.BIND_AUTO_CREATE);
 	}
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 
 	@Override
 	protected void onStop() {

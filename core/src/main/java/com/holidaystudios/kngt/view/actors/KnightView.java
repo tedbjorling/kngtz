@@ -9,13 +9,17 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.holidaystudios.kngt.Defs;
 import com.holidaystudios.kngt.Direction;
 import com.holidaystudios.kngt.view.UIAssets;
+import com.holidaystudios.kngt.view.ViewListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class KnightView extends Actor {
-
 
     private enum State {
         stand, walk
     };
+
+    private List<ViewListener> listeners = new ArrayList<ViewListener>();
 
     private Rectangle bounds = new Rectangle();
 
@@ -27,14 +31,16 @@ public class KnightView extends Actor {
     State state = State.stand;
     Direction direction = Direction.north;
 
-    boolean newMoveEnqueued = false;
-    Direction enqueuedDirection = Direction.north;
-
     public KnightView() {
         setColor(Color.WHITE);
         setWidth(Defs.TILE_SIZE);
         setHeight(Defs.TILE_SIZE);
     }
+
+    public void addListener(final ViewListener toAdd) {
+        listeners.add(toAdd);
+    }
+
 
     private void doWalk() {
         switch(direction) {
@@ -51,6 +57,10 @@ public class KnightView extends Actor {
                 positionXDelta = stateProgress * getWidth();
                 break;
         }
+    }
+
+    public Boolean isWalking() {
+        return state == State.walk;
     }
 
     private void finishWalk() {
@@ -72,10 +82,8 @@ public class KnightView extends Actor {
         stateDuration = stateTime = 0.0f;
         positionYDelta = positionXDelta = 0.0f;
 
-        if(newMoveEnqueued) {
-            newMoveEnqueued = false;
-            move(enqueuedDirection);
-        }
+        for (ViewListener vl : listeners)
+            vl.handleViewEvent(ViewListener.EventType.doneMoving, null);
     }
 
     @Override
@@ -118,15 +126,6 @@ public class KnightView extends Actor {
         bounds.set(getX(), getY(), getWidth(), getHeight());
     }
 
-    public Rectangle getBounds() {
-        return bounds;
-    }
-
-    private void enqueueNewMove(Direction _direction) {
-        newMoveEnqueued = true;
-        enqueuedDirection = _direction;
-    }
-
     public void move(Direction _direction) {
         if(state == State.stand) {
             direction = _direction;
@@ -148,8 +147,6 @@ public class KnightView extends Actor {
                     setRotation(270.0f);
                     break;
             }
-        } else {
-            enqueueNewMove(_direction);
         }
     }
 }
