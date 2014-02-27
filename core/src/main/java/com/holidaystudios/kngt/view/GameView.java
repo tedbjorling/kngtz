@@ -85,7 +85,8 @@ public class GameView implements Screen, GestureListener, InputProcessor {
                     mapTile = new StaticTiledMapTile(new TextureRegion(UIAssets.emptyTexture));
                 }
                 cell.setTile(mapTile);
-                layer.setCell(x, y, cell);
+                //Inverse Y axis
+                layer.setCell(x, (bitmap.length-1)-y, cell);
             }
         }
         layers.add(layer);
@@ -108,7 +109,6 @@ public class GameView implements Screen, GestureListener, InputProcessor {
 
         stage.act(delta);
         stage.draw();
-
     }
 
     @Override

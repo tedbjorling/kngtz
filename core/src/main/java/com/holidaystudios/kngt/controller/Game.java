@@ -27,15 +27,17 @@ public class Game implements ViewListener {
         knight = new Knight();
         model.addKnight(knight);
 
-        /*
-        knight.getModel().setRoomX(4);
-        knight.getModel().setRoomY(3);
-        System.out.println("Room : " + knight.getModel().getRoomX() + ", " + knight.getModel().getRoomY());
-        System.out.println("Pos  : " + knight.getModel().getPosX() + ", " + knight.getModel().getPosY());
-        */
+
+        knight.getModel().setRoomX(0);
+        knight.getModel().setRoomY(2);
+
 
         view.addToStage(knight.getView());
         view.renderRoom(model.getRoomBitmap(knight.getModel().getRoomX(), knight.getModel().getRoomY()));
+
+        knight.setPosition(12, 1);
+        //knight.setPosition(Defs.TILES_PER_DISTANCE-1, Defs.TILES_PER_DISTANCE-1);
+        System.out.println(knight);
     }
 
     public GameModel getModel() {
@@ -72,6 +74,7 @@ public class Game implements ViewListener {
 
         if (targetTile == TileTypes.TILE_FLOOR) {
             knight.move(dir);
+            System.out.println(knight);
         } else if (targetTile == TileTypes.TILE_DOOR) {
 
         }

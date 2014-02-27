@@ -52,7 +52,17 @@ public class Knight {
     public void setPosition(final Integer posX, final Integer posY) {
         this.model.setPosX(posX);
         this.model.setPosY(posY);
-        this.view.setPosition(posX * Defs.TILE_SIZE, posY * Defs.TILE_SIZE);
+        this.view.setPosition(posX * Defs.TILE_SIZE, (Defs.TILE_SIZE * (Defs.TILES_PER_DISTANCE-1- posY))); //Inverse Y-axis
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Room : " + getModel().getRoomX() + ", " + getModel().getRoomY());
+        sb.append(System.lineSeparator());
+        sb.append("Pos  : " + getModel().getPosX() + ", " + getModel().getPosY());
+        return sb.toString();
+    }
+
 
 }
