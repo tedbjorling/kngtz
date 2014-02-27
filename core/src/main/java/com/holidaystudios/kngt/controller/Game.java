@@ -27,17 +27,16 @@ public class Game implements ViewListener {
         knight = new Knight();
         model.addKnight(knight);
 
-
+        /*
         knight.getModel().setRoomX(0);
         knight.getModel().setRoomY(2);
-
+        */
 
         view.addToStage(knight.getView());
         view.renderRoom(model.getRoomBitmap(knight.getModel().getRoomX(), knight.getModel().getRoomY()));
 
-        knight.setPosition(12, 1);
-        //knight.setPosition(Defs.TILES_PER_DISTANCE-1, Defs.TILES_PER_DISTANCE-1);
-        System.out.println(knight);
+        //knight.setPosition(12, 1);
+        //System.out.println(knight);
     }
 
     public GameModel getModel() {
@@ -46,19 +45,6 @@ public class Game implements ViewListener {
 
     public GameView getView() {
         return view;
-    }
-
-    private boolean canMoveInDirection(final Knight knight, final Direction dir) {
-        Integer posX = knight.getModel().getPosX();
-        Integer posY = knight.getModel().getPosY();
-        switch (dir) {
-            case east: posX++; break;
-            case west: posX--; break;
-            case north: posY--; break;
-            case south: posY++; break;
-        }
-        final Integer[][] bitmap = model.getRoomBitmap(knight.getModel().getRoomX(), knight.getModel().getRoomY());
-        return bitmap[posY][posX] == TileTypes.TILE_FLOOR;
     }
 
     private void handleMovement(final Knight knight, final Direction dir) {
@@ -70,13 +56,13 @@ public class Game implements ViewListener {
             case north: posY--; break;
             case south: posY++; break;
         }
-        final Integer targetTile = model.getRoomBitmap(knight.getModel().getRoomX(), knight.getModel().getRoomY())[posY][posX];
 
+        final Integer targetTile = model.getRoomBitmap(knight.getModel().getRoomX(), knight.getModel().getRoomY())[posY][posX];
         if (targetTile == TileTypes.TILE_FLOOR) {
             knight.move(dir);
-            System.out.println(knight);
         } else if (targetTile == TileTypes.TILE_DOOR) {
-
+            knight.gotoNextRoom(dir);
+            view.renderRoom(model.getRoomBitmap(knight.getModel().getRoomX(), knight.getModel().getRoomY()));
         }
     }
 

@@ -44,6 +44,27 @@ public class Knight {
         view.move(d);
     }
 
+    public void gotoNextRoom(final Direction d) {
+        switch (d) {
+            case north:
+                setRoom(getModel().getRoomX(), getModel().getRoomY()-1);
+                setPosition(getModel().getPosX(), Defs.TILES_PER_DISTANCE-2);
+                break;
+            case south:
+                setRoom(getModel().getRoomX(), getModel().getRoomY()+1);
+                setPosition(getModel().getPosX(), 1);
+                break;
+            case east:
+                setRoom(getModel().getRoomX()+1, getModel().getRoomY());
+                setPosition(1, getModel().getPosY());
+                break;
+            case west:
+                setRoom(getModel().getRoomX()-1, getModel().getRoomY());
+                setPosition(Defs.TILES_PER_DISTANCE-2, getModel().getPosY());
+                break;
+        }
+    }
+
     public void setRoom(final Integer roomX, final Integer roomY) {
         this.model.setRoomX(roomX);
         this.model.setRoomY(roomY);
