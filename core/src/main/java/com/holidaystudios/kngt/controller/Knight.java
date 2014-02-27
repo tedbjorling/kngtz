@@ -49,6 +49,12 @@ public class Knight implements ViewListener {
             return;
         }
 
+        if (stickyDirection == null && view.isWalking()) {
+            //Let the animation finish
+            stickyDirection = d;
+            return;
+        }
+
         //What is the target tile?
         Integer posX = getModel().getPosX();
         Integer posY = getModel().getPosY();
@@ -59,16 +65,17 @@ public class Knight implements ViewListener {
             case south: posY++; break;
         }
 
+        if (sticky) {
+            stickyDirection = d;
+        } else {
+            stickyDirection = null;
+        }
+
         final Integer targetTile = game.getModel().getRoomBitmap(getModel().getRoomX(), getModel().getRoomY())[posY][posX];
         if (targetTile == TileTypes.TILE_FLOOR) {
             model.setPosX(posX);
             model.setPosY(posY);
-
-            if (sticky) {
-                stickyDirection = d;
-            } else {
-                stickyDirection = null;
-            }
+            //System.out.println("Setting position " + posX + ", " + posY);
             view.move(d);
 
         } else if (targetTile == TileTypes.TILE_DOOR) {
@@ -88,19 +95,19 @@ public class Knight implements ViewListener {
         switch (d) {
             case north:
                 setRoom(getModel().getRoomX(), getModel().getRoomY()-1);
-                setPosition(getModel().getPosX(), Defs.TILES_PER_DISTANCE - 2);
+                setPosition(getModel().getPosX(), Defs.TILES_PER_DISTANCE - (stickyDirection != null? 1 : 2));
                 break;
             case south:
                 setRoom(getModel().getRoomX(), getModel().getRoomY()+1);
-                setPosition(getModel().getPosX(), 1);
+                setPosition(getModel().getPosX(), (stickyDirection != null? 0 : 1));
                 break;
             case east:
                 setRoom(getModel().getRoomX() + 1, getModel().getRoomY());
-                setPosition(1, getModel().getPosY());
+                setPosition((stickyDirection != null? 0 : 1), getModel().getPosY());
                 break;
             case west:
                 setRoom(getModel().getRoomX() - 1, getModel().getRoomY());
-                setPosition(Defs.TILES_PER_DISTANCE - 2, getModel().getPosY());
+                setPosition(Defs.TILES_PER_DISTANCE - (stickyDirection != null? 1 : 2), getModel().getPosY());
                 break;
         }
 

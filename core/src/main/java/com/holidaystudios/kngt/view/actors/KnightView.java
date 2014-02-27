@@ -62,6 +62,10 @@ public class KnightView extends Actor {
         }
     }
 
+    public Boolean isWalking() {
+        return state == State.walk;
+    }
+
     private void finishWalk() {
         switch(direction) {
             case north:
