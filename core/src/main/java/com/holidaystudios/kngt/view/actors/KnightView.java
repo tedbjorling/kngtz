@@ -134,7 +134,7 @@ public class KnightView extends Actor {
             direction = _direction;
             state = State.walk;
             stateTime = 0.0f;
-            stateDuration = knightAnimation.animationDuration/3; //Make things quicker
+            stateDuration = knightAnimation.animationDuration;
 
             switch(direction) {
                 case north:
