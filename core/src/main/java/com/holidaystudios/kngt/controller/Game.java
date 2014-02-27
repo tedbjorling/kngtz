@@ -9,7 +9,7 @@ import com.holidaystudios.kngt.view.ViewListener;
 /**
  * Created by tedbjorling on 2014-02-26.
  */
-public class Game implements ViewListener {
+public class Game implements ViewListener, ControllerListener {
 
     private GameModel model;
     private GameView view;
@@ -24,6 +24,7 @@ public class Game implements ViewListener {
 
         //Add a knight
         knight = new Knight(this);
+        knight.addListener(this); //Listen for events
         model.addKnight(knight);
 
         /*
@@ -51,7 +52,7 @@ public class Game implements ViewListener {
     }
 
     @Override
-    public void handleViewEvent(final EventType type, final Object data) {
+    public void handleViewEvent(final ViewListener.EventType type, final Object data) {
         switch (type) {
             case fling: {
                     handleMovement(knight, (Direction) data, false);
@@ -101,6 +102,19 @@ public class Game implements ViewListener {
                 if (dir != null) {
                     knight.stopMoving(dir);
                 }
+                break;
+        }
+    }
+
+    @Override
+    public void handleControllerEvent(ControllerListener.EventType type, Object emitter, Object data) {
+        switch (type) {
+            case knightNewRoom:
+                final Knight knight = (Knight) emitter;
+                final Direction d = (Direction) data;
+
+                knight.gotoNextRoom(d);
+                view.renderRoom(model.getRoomBitmap(knight.getModel().getRoomX(), knight.getModel().getRoomY()));
                 break;
         }
     }

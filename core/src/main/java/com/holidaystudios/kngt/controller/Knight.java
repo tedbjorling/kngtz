@@ -7,6 +7,9 @@ import com.holidaystudios.kngt.model.KnightModel;
 import com.holidaystudios.kngt.view.ViewListener;
 import com.holidaystudios.kngt.view.actors.KnightView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by tedbjorling on 2014-02-26.
  */
@@ -17,11 +20,17 @@ public class Knight implements ViewListener {
     private Game game;
     private Direction stickyDirection = null;
 
+    private List<ControllerListener> listeners = new ArrayList<ControllerListener>();
+
     public Knight(final Game _game) {
         game = _game;
         model = new KnightModel();
         view = new KnightView();
         view.addListener(this);
+    }
+
+    public void addListener(final ControllerListener toAdd) {
+        listeners.add(toAdd);
     }
 
     public KnightModel getModel() {
@@ -63,10 +72,8 @@ public class Knight implements ViewListener {
             view.move(d);
 
         } else if (targetTile == TileTypes.TILE_DOOR) {
-            gotoNextRoom(d);
-
-            //XXX handle this through sending an event instead, signaling this properly to others
-            game.getView().renderRoom(game.getModel().getRoomBitmap(getModel().getRoomX(), getModel().getRoomY()));
+            for (ControllerListener vl : listeners)
+                vl.handleControllerEvent(ControllerListener.EventType.knightNewRoom, this, d);
         }
 
     }
@@ -95,6 +102,11 @@ public class Knight implements ViewListener {
                 setRoom(getModel().getRoomX() - 1, getModel().getRoomY());
                 setPosition(Defs.TILES_PER_DISTANCE - 2, getModel().getPosY());
                 break;
+        }
+
+        //Should we continue to move? stickyDirection SHOULD be equal to d at this point
+        if (stickyDirection != null) {
+            move(stickyDirection, true);
         }
     }
 
