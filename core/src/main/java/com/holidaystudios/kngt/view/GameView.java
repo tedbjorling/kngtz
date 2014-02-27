@@ -166,6 +166,8 @@ public class GameView implements Screen, GestureListener, InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
+        for (ViewListener vl : listeners)
+            vl.handleViewEvent(ViewListener.EventType.keyUp, new Integer(keycode));
         return false;
     }
 

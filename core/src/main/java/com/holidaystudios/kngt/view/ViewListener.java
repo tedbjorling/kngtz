@@ -6,7 +6,7 @@ package com.holidaystudios.kngt.view;
 public interface ViewListener {
 
     public enum EventType {
-        fling, keyDown
+        fling, keyDown, keyUp, doneMoving
     }
 
     public void handleViewEvent(EventType type, Object data);
