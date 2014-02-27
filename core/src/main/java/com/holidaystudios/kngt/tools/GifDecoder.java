@@ -687,7 +687,12 @@ public class GifDecoder {
         } while ((blockSize > 0) && !err());
     }
 
-    public Animation getAnimation(int playType) {
+    public class AnimationTextureCouple {
+        public Texture texture;
+        public Animation animation;
+    }
+
+    public AnimationTextureCouple getAnimation(int playType) {
         int nrFrames = getFrameCount();
         Pixmap frame = getFrame(0);
         int width = frame.getWidth();
@@ -711,26 +716,29 @@ public class GifDecoder {
             }
         }
 
-        Texture texture = new Texture(target);
+        AnimationTextureCouple atcResult = new AnimationTextureCouple();
+
+        atcResult.texture = new Texture(target);
         Array<TextureRegion> texReg = new Array<TextureRegion>();
 
         for(h = 0; h < hzones; h++) {
             for(v = 0; v < vzones; v++) {
                 int frameID = v + h * vzones;
                 if(frameID < nrFrames) {
-                    TextureRegion tr = new TextureRegion(texture, h * width, v * height, width, height);
+                    TextureRegion tr = new TextureRegion(atcResult.texture, h * width, v * height, width, height);
                     texReg.add(tr);
                 }
             }
         }
         float frameDuration = (float)getDelay(0);
         frameDuration /= 1000; // convert milliseconds into seconds
-        Animation result = new Animation(frameDuration, texReg, playType);
 
-        return result;
+        atcResult.animation = new Animation(frameDuration, texReg, playType);
+
+        return atcResult;
     }
 
-    public static Animation loadGIFAnimation(int playType, InputStream is) {
+    public static AnimationTextureCouple loadGIFAnimation(int playType, InputStream is) {
         GifDecoder gdec = new GifDecoder();
         gdec.read(is);
         return gdec.getAnimation(playType);

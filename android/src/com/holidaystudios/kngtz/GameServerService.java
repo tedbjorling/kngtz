@@ -7,10 +7,13 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class GameServerService extends Service {
-    boolean loggedIn = false;
+    static boolean loggedIn = false;
+    static String dateString = "notSet";
 
     // These are the Intent actions that we are prepared to handle. Notice that the fact these
 	// constants exist in our class is a mere convenience: what really defines the actions our
@@ -41,16 +44,23 @@ public class GameServerService extends Service {
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         if(!loggedIn) {
-            Log.i("Kngtz", "Launching StartupActivity intent...");
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            Date date = new Date();
+            dateString = dateFormat.format(date);
+
+            Log.i("Kngtz", "Launching StartupActivity intent..." + dateString);
+
             loggedIn = true;
             Intent loginIntent = new Intent(this, com.holidaystudios.kngtz.StartupActivity.class);
             loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             this.startActivity(loginIntent);
         }
+        Log.i("Kngtz", "onCreate called for service with dateString(" + dateString + ")");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("Kngtz", "onStartCommand called for service with dateString (" + dateString + ")");
         if(intent != null) {
             String action = intent.getAction();
 
@@ -62,10 +72,11 @@ public class GameServerService extends Service {
 
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     void processLoginToServerRequest(Intent intent) {
+        mNM.cancel(NOTIFICATION);
     }
 
     void processCreateServerRequest(Intent intent) {
@@ -75,6 +86,7 @@ public class GameServerService extends Service {
     @Override
     public void onDestroy() {
         // Cancel the persistent notification.
+        Log.i("Kngtz", "onDestroy called for service with dateString (" + dateString + ")");
         mNM.cancel(NOTIFICATION);
     }
 
@@ -102,6 +114,7 @@ public class GameServerService extends Service {
         // Set the icon, scrolling text and timestamp
         Notification notification = new Notification.Builder(this)
                 .setContentTitle(text)
+                .setOngoing(true)
                 .setSmallIcon(R.drawable.server_notification_icon)
                 //.setContentIntent(contentIntent)
                 .build();

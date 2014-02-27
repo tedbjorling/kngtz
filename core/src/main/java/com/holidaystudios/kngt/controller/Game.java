@@ -19,13 +19,20 @@ public class Game implements ViewListener {
     private Knight knight;
 
     public Game() {
-        model = new GameModel("733 kru", 10, 10);
+        model = new GameModel("733 kru", 5, 5);
         view = new GameView();
         view.addListener(this);
 
         //Add a knight
         knight = new Knight();
         model.addKnight(knight);
+
+        /*
+        knight.getModel().setRoomX(4);
+        knight.getModel().setRoomY(3);
+        System.out.println("Room : " + knight.getModel().getRoomX() + ", " + knight.getModel().getRoomY());
+        System.out.println("Pos  : " + knight.getModel().getPosX() + ", " + knight.getModel().getPosY());
+        */
 
         view.addToStage(knight.getView());
         view.renderRoom(model.getRoomBitmap(knight.getModel().getRoomX(), knight.getModel().getRoomY()));
