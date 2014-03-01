@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+
+import com.holidaystudios.kngt.server.ServerAnnouncer;
+
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -75,12 +78,22 @@ public class GameServerService extends Service {
         return START_NOT_STICKY;
     }
 
-    void processLoginToServerRequest(Intent intent) {
+    void bringDownServer() {
         mNM.cancel(NOTIFICATION);
+        ServerAnnouncer.onDestroy();
+    }
+
+    void bringUpServer() {
+        ServerAnnouncer.onCreate(new WifiServerNetworkInterface(this));
+        showNotification();
+    }
+
+    void processLoginToServerRequest(Intent intent) {
+        bringDownServer();
     }
 
     void processCreateServerRequest(Intent intent) {
-        showNotification();
+        bringUpServer();
     }
 
     @Override

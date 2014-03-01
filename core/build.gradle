@@ -1,5 +1,7 @@
 sourceCompatibility = 1.7
-
 eclipse.project {
     name = appName
+}
+dependencies {
+    compile files('libs/jmdns.jar')
 }

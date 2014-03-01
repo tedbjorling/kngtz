@@ -1,1 +1,2 @@
+include ':JmDNS'
 include "core", "desktop", "android"
