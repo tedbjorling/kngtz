@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.holidaystudios.kngt.server.ServerAnnouncer;
+import com.holidaystudios.kngt.server.ServerFinder;
 
 import java.util.Date;
 import java.text.DateFormat;
@@ -47,6 +48,8 @@ public class GameServerService extends Service {
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         if(!loggedIn) {
+            ServerFinder.onCreate(new WifiServerNetworkInterface(this));
+
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
             Date date = new Date();
             dateString = dateFormat.format(date);

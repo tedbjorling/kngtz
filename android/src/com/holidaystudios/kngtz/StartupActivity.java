@@ -1,8 +1,10 @@
 package com.holidaystudios.kngtz;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.content.Intent;
@@ -10,6 +12,9 @@ import android.os.IBinder;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.badlogic.gdx.utils.Array;
+import com.holidaystudios.kngt.server.ServerFinder;
 
 public class StartupActivity extends Activity {
     @Override
@@ -41,10 +46,43 @@ public class StartupActivity extends Activity {
         finish();
     }
 
-    public void connectToServer(View view) {
+    public void loginToServer() {
         Intent login_intent = new Intent(GameServerService.ACTION_LOGIN_TO_SERVER);
         startService(login_intent);
         finish();
+    }
+
+    ServerFinder.Server[] servers;
+
+    private CharSequence[] getServerNames() {
+        servers = ServerFinder.getKngtzServerArray();
+        CharSequence[] serverNames = new CharSequence[servers.length];
+        int k;
+        for(k = 0; k < servers.length; k++) {
+            serverNames[k] = servers[k].name;
+        }
+
+        return serverNames;
+    }
+
+    public void connectToServer(View view) {
+        AlertDialog diag = new AlertDialog.Builder(this)
+                .setCancelable(true)
+                .setTitle(getString(R.string.select_server))
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // do nothing
+                    }
+                })
+                .setItems(getServerNames(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        loginToServer();
+                    }
+                })
+                .create();
+        diag.show();
     }
 
 }

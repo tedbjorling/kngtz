@@ -12,18 +12,17 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceListener;
 import javax.jmdns.ServiceInfo;
 
-import java.net.SocketException;
 import java.util.ArrayList;
 
 import java.io.IOException;
 import java.net.InetAddress;
 
 public class ServerFinder {
-	public static class Service {
+	public static class Server {
 		public String name, address;
 		public int port;
 
-		public Service(String n, String a, int p) {
+		public Server(String n, String a, int p) {
 			name = n;
 			address = a;
 			port = p;
@@ -89,11 +88,11 @@ public class ServerFinder {
 							if (ev.getInfo().getInetAddresses() != null && ev.getInfo().getInetAddresses().length > 0) {
 								hostAddress = ev.getInfo().getInetAddresses()[0].getHostAddress();
 							}
-							notifyUser("yabbadabba! Service resolved: " +
+							notifyUser("yabbadabba! Server resolved: " +
 								   ev.getInfo().getQualifiedName() + " port:" + ev.getInfo().getPort() +
 								   " " + hostAddress);
 
-							Service srv = new Service(ev.getInfo().getQualifiedName(),
+							Server srv = new Server(ev.getInfo().getQualifiedName(),
 										  hostAddress,
 										  ev.getInfo().getPort());
 							addKngtzServer(srv);
@@ -102,7 +101,7 @@ public class ServerFinder {
 
 						@Override
 						public void serviceRemoved(ServiceEvent ev) {
-							notifyUser("Service removed: " + ev.getName());
+							notifyUser("Server removed: " + ev.getName());
 						}
 
 						@Override
@@ -117,19 +116,19 @@ public class ServerFinder {
 			}
 		}
 
-		final private ArrayList<Service> services = new ArrayList<Service>(10);
+		final private ArrayList<Server> servers = new ArrayList<Server>(10);
 
-		private void addKngtzServer(Service srv) {
-			synchronized(services) {
-				services.add(srv);
+		private void addKngtzServer(Server srv) {
+			synchronized(servers) {
+				servers.add(srv);
 			}
 
 		}
 
-		public Service[] getKngtzServers() {
-			Service[] result;
-			synchronized(services) {
-				result = services.toArray(new Service[services.size()]);
+		public Server[] getKngtzServers() {
+			Server[] result;
+			synchronized(servers) {
+				result = servers.toArray(new Server[servers.size()]);
 			}
 			return result;
 		}
@@ -163,7 +162,7 @@ public class ServerFinder {
 			jth.release();
 	}
 
-	public static Service[] getKngtzServerArray() {
+	public static Server[] getKngtzServerArray() {
 		if(jth != null)
 			return jth.getKngtzServers();
 		return null;
