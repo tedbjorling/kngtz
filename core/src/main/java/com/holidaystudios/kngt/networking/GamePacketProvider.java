@@ -6,6 +6,8 @@
 
 package com.holidaystudios.kngt.networking;
 
+import com.badlogic.gdx.Gdx;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -14,44 +16,50 @@ import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class GamePacket {
+public class GamePacketProvider {
     static final int PACKET_LENGTH = 1024;
 
-    static ByteBuffer sendPacketBuffer;
-    static DatagramPacket sendPacket;
+    ByteBuffer sendPacketBuffer;
+    DatagramPacket sendPacket;
 
-    public static ByteBuffer getSendBuffer() {
+    public ByteBuffer getSendBuffer() {
         sendPacketBuffer.rewind();
         return sendPacketBuffer;
     }
 
-    public static void send(DatagramSocket serverSocket, InetAddress IPAddress, int port) throws IOException {
+    public void send(DatagramSocket serverSocket, InetAddress IPAddress, int port) throws IOException {
         sendPacket.setData(sendPacketBuffer.array());
         sendPacket.setAddress(IPAddress);
         sendPacket.setPort(port);
+
+        Gdx.app.log("kngt", "SEND peek at packet: " + sendPacketBuffer.array()[0]);
+
         serverSocket.send(sendPacket);
     }
 
-    static ByteBuffer receivePacketBuffer;
-    static DatagramPacket receivePacket;
+    ByteBuffer receivePacketBuffer;
+    DatagramPacket receivePacket;
 
-    public static void receive(DatagramSocket socket) throws IOException, SocketTimeoutException {
+    public void receive(DatagramSocket socket) throws IOException, SocketTimeoutException {
         socket.receive(receivePacket);
+        Gdx.app.log("kngt", "peek at packet A: " + receivePacketBuffer.array()[0]);
+        receivePacketBuffer.rewind();
+        Gdx.app.log("kngt", "peek at packet B: " + receivePacketBuffer.array()[0]);
     }
 
-    public static ByteBuffer getReceivePacketBuffer() {
+    public ByteBuffer getReceivePacketBuffer() {
         return receivePacketBuffer;
     }
 
-    public static InetAddress getSourceAddress() {
+    public InetAddress getSourceAddress() {
         return receivePacket.getAddress();
     }
 
-    public static int getSourcePort() {
+    public int getSourcePort() {
         return receivePacket.getPort();
     }
 
-    static {
+    public GamePacketProvider() {
         if(sendPacketBuffer == null) {
             sendPacketBuffer = ByteBuffer.allocate(PACKET_LENGTH);
             sendPacketBuffer.order(ByteOrder.BIG_ENDIAN);
@@ -59,9 +67,9 @@ public class GamePacket {
         }
 
         if(receivePacketBuffer == null) {
-            receivePacketBuffer = ByteBuffer.allocate(1024);
+            receivePacketBuffer = ByteBuffer.allocate(PACKET_LENGTH);
             receivePacketBuffer.order(ByteOrder.BIG_ENDIAN);
-            receivePacket = new DatagramPacket(sendPacketBuffer.array(), PACKET_LENGTH);
+            receivePacket = new DatagramPacket(receivePacketBuffer.array(), PACKET_LENGTH);
         }
     }
 }

@@ -8,9 +8,15 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.holidaystudios.kngt.networking.GameClient;
+import com.holidaystudios.kngt.networking.GameServer;
 import com.holidaystudios.kngt.networking.ServerAnnouncer;
 import com.holidaystudios.kngt.networking.ServerFinder;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -84,19 +90,38 @@ public class GameServerService extends Service {
     void bringDownServer() {
         mNM.cancel(NOTIFICATION);
         ServerAnnouncer.onDestroy();
+
+        GameServer.bringDown();
     }
 
     void bringUpServer() {
         ServerAnnouncer.onCreate(new WifiServerNetworkInterface(this));
         showNotification();
+        GameServer.bringUp();
+    }
+
+    void doLoginTo(final String host) {
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(10);
+                } catch(InterruptedException e) {}
+                GameClient.instance.logInTo(host);
+            }
+        }).start();
     }
 
     void processLoginToServerRequest(Intent intent) {
         bringDownServer();
+        InetAddress hostAddress;
+
+        doLoginTo(intent.getStringExtra("serverAddress"));
     }
 
     void processCreateServerRequest(Intent intent) {
         bringUpServer();
+
+        doLoginTo("localhost");
     }
 
     @Override

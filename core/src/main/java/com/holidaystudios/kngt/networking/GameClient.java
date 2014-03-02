@@ -6,6 +6,7 @@
 
 package com.holidaystudios.kngt.networking;
 
+import com.badlogic.gdx.Gdx;
 import com.holidaystudios.kngt.model.KnightModel;
 import com.holidaystudios.kngt.model.RoomModel;
 import com.holidaystudios.kngt.view.GameView;
@@ -18,6 +19,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashMap;
@@ -38,41 +40,54 @@ public class GameClient extends Thread implements ViewListener {
 
     DatagramSocket socket;
 
+    public GamePacketProvider packetProvider = new GamePacketProvider();
+
     private ByteBuffer getFreeBuffer() {
         ByteBuffer head = freeBuffers.poll();
         if(head == null) { // only create new packets if none is available
-            head = ByteBuffer.allocate(GamePacket.PACKET_LENGTH);
+            head = ByteBuffer.allocate(GamePacketProvider.PACKET_LENGTH);
             head.order(ByteOrder.BIG_ENDIAN);
         }
 
         return head;
     }
 
-    public GameClient instance = null;
+    public static GameClient instance = null;
     public GameClient() throws SocketException {
         if(instance != null) throw new SocketException("GameClient instance already created.");
         instance = this;
-        socket = new DatagramSocket(CLIENT_PORT);
     }
 
-    public void logInTo(InetAddress address) throws IOException {
-        serverAddress = address;
-        ByteBuffer bb = GamePacket.getSendBuffer();
+    public void logInTo(String hostName) {
+        try {
+            serverAddress = InetAddress.getByName(hostName);
+            ByteBuffer bb = packetProvider.getSendBuffer();
 
-        bb.put(GameServer.CL_PACKET_LOGIN_USER);
+            bb.put(GameServer.CL_PACKET_LOGIN_USER);
 
-        GamePacket.send(socket, serverAddress, GameServer.SERVER_PORT);
+            packetProvider.send(socket, serverAddress, GameServer.SERVER_PORT);
+        } catch(UnknownHostException e) {
+        } catch(IOException e) {
+        }
     }
 
     @Override
     public void run() {
-        byte[] nonUsed = new byte[GamePacket.PACKET_LENGTH];
-        DatagramPacket recvPacket = new DatagramPacket(nonUsed, GamePacket.PACKET_LENGTH);
+        try {
+            socket = new DatagramSocket(CLIENT_PORT);
+        } catch(SocketException e) {
+            System.exit(-1);
+        }
+        byte[] nonUsed = new byte[GamePacketProvider.PACKET_LENGTH];
+        DatagramPacket recvPacket = new DatagramPacket(nonUsed, GamePacketProvider.PACKET_LENGTH);
         while(true) {
             ByteBuffer bb = getFreeBuffer();
             try {
                 recvPacket.setData(bb.array());
+                Gdx.app.log("kngt", "CLIENT waiting.");
                 socket.receive(recvPacket);
+                Gdx.app.log("kngt", "CLIENT waiting.");
+
                 while(bb != null) {
                     try {
                         consumedBuffers.add(bb);

@@ -25,7 +25,7 @@ public class KngtzMain extends com.badlogic.gdx.Game {
         try {
             gameClient = new GameClient();
         } catch(SocketException e) {
-            System.exit(0);
+            System.exit(-1);
         }
         gameClient.start();
 

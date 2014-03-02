@@ -1,23 +1,16 @@
 package com.holidaystudios.kngt.controller;
 
-import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Gdx;
 import com.holidaystudios.kngt.model.Direction;
 import com.holidaystudios.kngt.model.GameModel;
 import com.holidaystudios.kngt.model.KnightModel;
 import com.holidaystudios.kngt.model.RoomModel;
-import com.holidaystudios.kngt.networking.GamePacket;
-import com.holidaystudios.kngt.networking.GameServer;
-import com.holidaystudios.kngt.view.GameView;
-import com.holidaystudios.kngt.view.ViewListener;
+import com.holidaystudios.kngt.networking.GameClient;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-
-import sun.security.x509.IPAddressName;
 
 /**
  * Created by tedbjorling on 2014-02-26.
@@ -26,9 +19,12 @@ public class Human {
 
     private GameModel model;
     private KnightModel knight;
+    private InetAddress clientAddress;
 
-    public Human(KnightModel _knight) {
+    public Human(GameModel _model, KnightModel _knight, InetAddress IPAddress) {
+        model = _model;
         knight = _knight;
+        clientAddress = IPAddress;
     }
 
     public void doMove(ByteBuffer data) {
@@ -48,8 +44,15 @@ public class Human {
         }
     }
 
-    public void publishCurrentState(DatagramSocket serverSocket, InetAddress IPAddress, int port) throws IOException {
-        RoomModel.publishRoomBitmap(model.getRoomBitmap(Integer.valueOf(knight.getRoomX()), Integer.valueOf(knight.getRoomY())), serverSocket, IPAddress, port);
-        knight.publishKnight(serverSocket, IPAddress, port);
+    public void publishCurrentState(DatagramSocket serverSocket) throws IOException {
+        byte[][] room = model.getRoomBitmap(Integer.valueOf(knight.getRoomX()), Integer.valueOf(knight.getRoomY()));
+        if(room != null) {
+            RoomModel.publishRoomBitmap(
+                    room, serverSocket,
+                    clientAddress, GameClient.CLIENT_PORT);
+        } else {
+            Gdx.app.log("kngt", "Current Knight model room is NULL.");
+        }
+        knight.publishKnight(serverSocket, clientAddress);
     }
 }

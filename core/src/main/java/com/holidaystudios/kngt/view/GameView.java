@@ -104,8 +104,11 @@ public class GameView implements Screen, GestureListener, InputProcessor {
         Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
         camera.update();
-        renderer.setView(camera);
-        renderer.render();
+
+        if(renderer != null) {
+            renderer.setView(camera);
+            renderer.render();
+        }
 
         stage.act(delta);
         stage.draw();

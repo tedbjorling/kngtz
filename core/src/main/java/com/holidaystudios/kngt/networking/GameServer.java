@@ -8,15 +8,15 @@ package com.holidaystudios.kngt.networking;
 
 import com.holidaystudios.kngt.controller.Human;
 import com.holidaystudios.kngt.model.GameModel;
-import com.holidaystudios.kngt.model.KnightModel;
+
+import com.badlogic.gdx.Gdx;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.Map;
 
 public class GameServer extends Thread {
@@ -30,45 +30,87 @@ public class GameServer extends Thread {
     public final static byte SR_PACKET_ROOM_MAP = 02;
     public final static byte SR_PACKET_KNIGHT_STATE = 03;
 
-    Map<InetAddress, Human> humans;
+    Map<InetAddress, Human> humans = new HashMap<InetAddress, Human>(10);
 
     GameModel currentGame;
     DatagramSocket serverSocket;
+    boolean running;
 
-    public GameServer() throws SocketException {
-        serverSocket = new DatagramSocket(SERVER_PORT);
-        serverSocket.setSoTimeout(MAXIMUM_WAIT_FOR_READ);
-        currentGame = new GameModel("733 kru", 5, 5);
+    private GamePacketProvider packetProvider = new GamePacketProvider();
+
+    private static GameServer instance = null;
+
+    public static void bringUp() {
+        if(instance != null)
+            bringDown();
+
+        instance = new GameServer();
+        instance.start();
     }
 
-    public void setClientKnightState(int knightID, KnightModel.State state, float stateDuration) {
+    public static void bringDown() {
+        if(instance != null) {
+            instance.running = false;
+            try {
+                instance.wait();
+            } catch(InterruptedException e) { /* ignore */ }
 
+            instance = null;
+        }
     }
 
-    private Human loginNewUser() {
-        return new Human(currentGame.addKnight(GameServer.this));
+    public GamePacketProvider getPacketProvider() {
+        return packetProvider;
+    }
+
+    static public GameServer getInstance() {
+        return instance;
+    }
+
+    private GameServer() {
+        running = true;
+    }
+
+    private Human loginNewUser(InetAddress address) {
+        return new Human(currentGame, currentGame.addKnight(GameServer.this), address);
     }
 
     private void decodePacket() {
-        ByteBuffer data = GamePacket.getReceivePacketBuffer();
+        ByteBuffer data = packetProvider.getReceivePacketBuffer();
 
-        if(humans.containsKey(GamePacket.getSourceAddress())) {
-            Human human = humans.get(GamePacket.getSourceAddress());
+        if(humans.containsKey(packetProvider.getSourceAddress())) {
+            Human human = humans.get(packetProvider.getSourceAddress());
             switch(data.get()) {
                 case CL_PACKET_MOVE:
                     human.doMove(data);
                     break;
             }
         } else if(data.get() == CL_PACKET_LOGIN_USER) {
-            humans.put(GamePacket.getSourceAddress(), loginNewUser());
+            Gdx.app.log("kngt", "SERVER received login request.");
+            Human human = loginNewUser(packetProvider.getSourceAddress());
+            humans.put(packetProvider.getSourceAddress(), human);
+            try {
+                human.publishCurrentState(serverSocket);
+            } catch(IOException e) {
+                Gdx.app.log("kngt", "Failed to publish current state in GameServer.decodePacket() - aborting.");
+                System.exit(-1);
+            }
         }
     }
 
     @Override
     public void run() {
+        try {
+            serverSocket = new DatagramSocket(SERVER_PORT);
+            serverSocket.setSoTimeout(MAXIMUM_WAIT_FOR_READ);
+            currentGame = new GameModel("733 kru", 5, 5);
+        } catch(IOException e) {
+            System.exit(-1);
+        }
+
         long lastTime = System.nanoTime();
         long thisTime;
-        while(true) {
+        while(running) {
             // game model should act on time
             thisTime = System.nanoTime();
             thisTime -= lastTime;
@@ -76,7 +118,8 @@ public class GameServer extends Thread {
             currentGame.act((int)thisTime);
 
             try {
-                GamePacket.receive(serverSocket);
+                packetProvider.receive(serverSocket);
+                Gdx.app.log("kngt", "SERVER received packet.");
                 decodePacket();
             } catch(SocketTimeoutException e) {
             } catch(IOException e) {

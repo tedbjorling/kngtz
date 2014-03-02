@@ -2,7 +2,7 @@ package com.holidaystudios.kngt.model;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.holidaystudios.kngt.TileTypes;
-import com.holidaystudios.kngt.networking.GamePacket;
+import com.holidaystudios.kngt.networking.GamePacketProvider;
 import com.holidaystudios.kngt.networking.GameServer;
 import com.holidaystudios.kngt.tools.RandomUtils;
 
@@ -474,7 +474,8 @@ public class RoomModel {
     }
 
     public static void publishRoomBitmap(byte[][] map, DatagramSocket serverSocket, InetAddress IPAddress, int port) throws IOException, BufferOverflowException {
-        ByteBuffer bb = GamePacket.getSendBuffer();
+        GamePacketProvider packetProvider = GameServer.getInstance().getPacketProvider();
+        ByteBuffer bb = packetProvider.getSendBuffer();
 
         bb.put(GameServer.SR_PACKET_ROOM_MAP);
         bb.put((byte)map.length);
@@ -487,7 +488,7 @@ public class RoomModel {
                 bb.put(row[y]);
             }
         }
-        GamePacket.send(serverSocket, IPAddress, port);
+        packetProvider.send(serverSocket, IPAddress, port);
     }
 
     public static byte[][] consumePublishedRoomBitmap(ByteBuffer bb) {

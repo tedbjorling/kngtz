@@ -1,14 +1,14 @@
 package com.holidaystudios.kngt.model;
 
 import com.holidaystudios.kngt.TileTypes;
-import com.holidaystudios.kngt.networking.GamePacket;
+import com.holidaystudios.kngt.networking.GameClient;
+import com.holidaystudios.kngt.networking.GamePacketProvider;
 import com.holidaystudios.kngt.networking.GameServer;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 /**
  * Created by tedbjorling on 2014-02-25.
@@ -57,8 +57,9 @@ public class KnightModel {
         return direction;
     }
 
-    public void publishKnight(DatagramSocket serverSocket, InetAddress IPAddress, int port) throws IOException {
-        ByteBuffer sendData = GamePacket.getSendBuffer();
+    public void publishKnight(DatagramSocket serverSocket, InetAddress IPAddress) throws IOException {
+        GamePacketProvider packetProvider = GameServer.getInstance().getPacketProvider();
+        ByteBuffer sendData = packetProvider.getSendBuffer();
         sendData.put(GameServer.SR_PACKET_KNIGHT_STATE);
         sendData.putInt(knightID);
 
@@ -93,7 +94,7 @@ public class KnightModel {
         sendData.putInt(posX);
         sendData.putInt(posY);
 
-        GamePacket.send(serverSocket, IPAddress, port);
+        packetProvider.send(serverSocket, IPAddress, GameClient.CLIENT_PORT);
     }
 
     public void consumePublishedKnight(ByteBuffer bb) {

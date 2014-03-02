@@ -41,8 +41,9 @@ public class StartupActivity extends Activity {
         finish();
     }
 
-    public void loginToServer() {
+    public void loginToServer(int index) {
         Intent login_intent = new Intent(GameServerService.ACTION_LOGIN_TO_SERVER);
+        login_intent.putExtra("serverAddress", servers[index].address);
         startService(login_intent);
         finish();
     }
@@ -73,7 +74,7 @@ public class StartupActivity extends Activity {
                 .setItems(getServerNames(), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        loginToServer();
+                        loginToServer(i);
                     }
                 })
                 .create();
