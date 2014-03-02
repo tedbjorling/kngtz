@@ -1,19 +1,14 @@
-/**
+/*************************************
+ *
  * Copyright (c) 2014 by Anton Persson
  *
- */
+ ************************************/
 
-package com.holidaystudios.kngt.server;
+package com.holidaystudios.kngt.networking;
 
-import com.badlogic.gdx.Gdx;
 import java.lang.Thread;
 import javax.jmdns.JmDNS;
-import javax.jmdns.ServiceEvent;
-import javax.jmdns.ServiceListener;
 import javax.jmdns.ServiceInfo;
-
-import java.net.SocketException;
-import java.util.ArrayList;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,7 +20,6 @@ public class ServerAnnouncer {
         private ServerNetworkInterface netInterface;
 
         private boolean running;
-        private static final String type = "_kngtz-server._tcp.local.";
         private JmDNS jmdns = null;
         private ServiceInfo serviceInfo;
         private InetAddress _bindingAddress;
@@ -72,7 +66,7 @@ public class ServerAnnouncer {
                 serviceInfo = ServiceInfo.create(
                         SERVER_IDENTIFIER,
                         "KNGTZ", 0,
-                        "KNGTZ Server");
+                        "KNGTZ GameServer");
 
                 jmdns.registerService(serviceInfo);
             } catch (IOException e) {

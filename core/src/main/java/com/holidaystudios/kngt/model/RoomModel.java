@@ -2,8 +2,15 @@ package com.holidaystudios.kngt.model;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.holidaystudios.kngt.TileTypes;
+import com.holidaystudios.kngt.networking.GamePacket;
+import com.holidaystudios.kngt.networking.GameServer;
 import com.holidaystudios.kngt.tools.RandomUtils;
 
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +25,7 @@ public class RoomModel {
 
     private final static Integer MIN_WALL_LENGTH = 3;
     private Integer posX, posY, pixelX, pixelY, pixelWidth, pixelHeight, tilesPerDistance;
-    private Integer[][] bitmap;
+    private byte[][] bitmap;
     private Map<DoorPosition, Integer> doors = new HashMap<DoorPosition, Integer>();
 
     public RoomModel(final Integer posX, final Integer posY, final Integer tilesPerDistance) {
@@ -38,9 +45,9 @@ public class RoomModel {
 
 
     private void initBitmap() {
-        bitmap = new Integer[this.pixelHeight][];
+        bitmap = new byte[this.pixelHeight][];
         for (int y=0; y<this.pixelHeight; y++) {
-            bitmap[y] = new Integer[this.pixelWidth];
+            bitmap[y] = new byte[this.pixelWidth];
             for (int x=0; x<this.pixelWidth; x++) {
                 bitmap[y][x] = TileTypes.TILE_NONE;
             }
@@ -78,7 +85,7 @@ public class RoomModel {
         doors.put(pos, offset);
     }
 
-    public Integer[][] getBitmap() {
+    public byte[][] getBitmap() {
         return this.bitmap;
     }
 
@@ -466,4 +473,38 @@ public class RoomModel {
 
     }
 
+    public static void publishRoomBitmap(byte[][] map, DatagramSocket serverSocket, InetAddress IPAddress, int port) throws IOException, BufferOverflowException {
+        ByteBuffer bb = GamePacket.getSendBuffer();
+
+        bb.put(GameServer.SR_PACKET_ROOM_MAP);
+        bb.put((byte)map.length);
+        bb.put((byte)map[0].length);
+
+        int x, y;
+        for(x = 0; x < map.length; x++) {
+            byte[] row = map[x];
+            for(y = 0; y < row.length; y++) {
+                bb.put(row[y]);
+            }
+        }
+        GamePacket.send(serverSocket, IPAddress, port);
+    }
+
+    public static byte[][] consumePublishedRoomBitmap(ByteBuffer bb) {
+        byte sizeX = bb.get();
+        byte sizeY = bb.get();
+
+        byte[][] newMap = new byte[sizeX][];
+        int x, y;
+
+        for(x = 0; x < sizeX; x++) {
+            byte[] row = new byte[sizeY];
+            newMap[x] = row;
+            for(y = 0; y < sizeY; y++) {
+                row[y] = bb.get();
+            }
+        }
+
+        return newMap;
+    }
 }

@@ -8,8 +8,8 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.holidaystudios.kngt.server.ServerAnnouncer;
-import com.holidaystudios.kngt.server.ServerFinder;
+import com.holidaystudios.kngt.networking.ServerAnnouncer;
+import com.holidaystudios.kngt.networking.ServerFinder;
 
 import java.util.Date;
 import java.text.DateFormat;

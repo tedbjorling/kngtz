@@ -3,23 +3,33 @@ package com.holidaystudios.kngt;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.holidaystudios.kngt.controller.Game;
+import com.holidaystudios.kngt.controller.Human;
+import com.holidaystudios.kngt.networking.GameClient;
 import com.holidaystudios.kngt.view.UIAssets;
+
+import java.net.SocketException;
 
 public class KngtzMain extends com.badlogic.gdx.Game {
 
     public static final String LOG = KngtzMain.class.getSimpleName();
     public SpriteBatch batch;
 
-	@Override
+    GameClient gameClient;
+
 	public void create () {
         Gdx.app.log( KngtzMain.LOG, "Creating game" );
 
         batch = new SpriteBatch();
         UIAssets.load();
 
-        final Game game = new Game();
-        this.setScreen(game.getView());
+        try {
+            gameClient = new GameClient();
+        } catch(SocketException e) {
+            System.exit(0);
+        }
+        gameClient.start();
+
+        this.setScreen(gameClient.getView());
 	}
 
     @Override
@@ -28,9 +38,9 @@ public class KngtzMain extends com.badlogic.gdx.Game {
     }
 
 	@Override
-	public void render ()
-    {
+	public void render () {
         super.render();
+        gameClient.processEvents();
 	}
 
     @Override

@@ -3,7 +3,7 @@
  *
  */
 
-package com.holidaystudios.kngt.server;
+package com.holidaystudios.kngt.networking;
 
 import com.badlogic.gdx.Gdx;
 import java.lang.Thread;
@@ -88,7 +88,7 @@ public class ServerFinder {
 							if (ev.getInfo().getInetAddresses() != null && ev.getInfo().getInetAddresses().length > 0) {
 								hostAddress = ev.getInfo().getInetAddresses()[0].getHostAddress();
 							}
-							notifyUser("yabbadabba! Server resolved: " +
+							notifyUser("yabbadabba! GameServer resolved: " +
 								   ev.getInfo().getQualifiedName() + " port:" + ev.getInfo().getPort() +
 								   " " + hostAddress);
 
@@ -101,7 +101,7 @@ public class ServerFinder {
 
 						@Override
 						public void serviceRemoved(ServiceEvent ev) {
-							notifyUser("Server removed: " + ev.getName());
+							notifyUser("GameServer removed: " + ev.getName());
 						}
 
 						@Override

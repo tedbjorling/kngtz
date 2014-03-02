@@ -1,4 +1,4 @@
-package com.holidaystudios.kngt.server;
+package com.holidaystudios.kngt.networking;
 
 import java.net.SocketException;
 

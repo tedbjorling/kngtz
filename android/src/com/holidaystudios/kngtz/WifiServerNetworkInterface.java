@@ -3,10 +3,7 @@ package com.holidaystudios.kngtz;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.text.format.Formatter;
 import android.util.Log;
-
-import com.holidaystudios.kngt.server.ServerFinder;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -16,7 +13,7 @@ import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Enumeration;
 
-class WifiServerNetworkInterface implements com.holidaystudios.kngt.server.ServerNetworkInterface {
+class WifiServerNetworkInterface implements com.holidaystudios.kngt.networking.ServerNetworkInterface {
     private android.net.wifi.WifiManager.MulticastLock lock;
     private final Context context;
 

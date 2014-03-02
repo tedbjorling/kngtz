@@ -23,18 +23,18 @@ public class CaveModel {
         this.createRooms();
     }
 
-    public Integer[][] getRoomBitmap(final Integer cx, final Integer cy) {
+    public byte[][] getRoomBitmap(final Integer cx, final Integer cy) {
         return rooms[cy][cx].getBitmap();
     }
 
-    public Integer[][] getBitmap() {
+    public byte[][] getBitmap() {
 
-        final Integer[][] caveBitmap = new Integer[Defs.TILES_PER_DISTANCE*rooms.length][Defs.TILES_PER_DISTANCE*rooms.length];
+        final byte[][] caveBitmap = new byte[Defs.TILES_PER_DISTANCE*rooms.length][Defs.TILES_PER_DISTANCE*rooms.length];
 
         //Fill the main bitmap
         for (int cy=0; cy<rooms.length; cy++) {
             for (int cx=0; cx<rooms[cy].length; cx++) {
-                final Integer[][] bitmap = rooms[cy][cx].getBitmap();
+                final byte[][] bitmap = rooms[cy][cx].getBitmap();
                 final Integer offsetX = cx*Defs.TILES_PER_DISTANCE;
                 final Integer offsetY = cy*Defs.TILES_PER_DISTANCE;
 
@@ -65,11 +65,11 @@ public class CaveModel {
 
         final StringBuilder sb = new StringBuilder();
 
-        final Integer[][] caveBitmap = this.getBitmap();
+        final byte[][] caveBitmap = this.getBitmap();
 
         for (int y=0; y<caveBitmap.length; y++) {
             for (int x=0; x<caveBitmap[y].length; x++) {
-                final Integer p = caveBitmap[y][x];
+                final byte p = caveBitmap[y][x];
 
                 if (p == 2000) {
                     sb.append(',');

@@ -5,9 +5,9 @@ package com.holidaystudios.kngt;
  */
 public class TileTypes {
 
-    public final static Integer TILE_NONE   = 0;
-    public final static Integer TILE_FLOOR  = 1;
-    public final static Integer TILE_WALL   = 2;
-    public final static Integer TILE_DOOR   = 3;
+    public final static byte TILE_NONE   = 0;
+    public final static byte TILE_FLOOR  = 1;
+    public final static byte TILE_WALL   = 2;
+    public final static byte TILE_DOOR   = 3;
 
 }

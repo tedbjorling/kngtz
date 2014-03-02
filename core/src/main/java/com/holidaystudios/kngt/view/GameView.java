@@ -19,7 +19,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.holidaystudios.kngt.Defs;
-import com.holidaystudios.kngt.Direction;
+import com.holidaystudios.kngt.model.Direction;
 import com.holidaystudios.kngt.TileTypes;
 import com.holidaystudios.kngt.model.GameModel;
 
@@ -59,7 +59,7 @@ public class GameView implements Screen, GestureListener, InputProcessor {
         stage.clear();
     }
 
-    public void renderRoom(final Integer[][] bitmap) {
+    public void renderRoom(final byte[][] bitmap) {
         map = new TiledMap();
         MapLayers layers = map.getLayers();
         TiledMapTileLayer layer = new TiledMapTileLayer(
@@ -71,7 +71,7 @@ public class GameView implements Screen, GestureListener, InputProcessor {
 
         for (int y=0; y<bitmap.length; y++) {
             for (int x=0; x<bitmap[y].length; x++) {
-                final Integer p = bitmap[y][x];
+                final byte p = bitmap[y][x];
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
                 StaticTiledMapTile mapTile = null;
 
