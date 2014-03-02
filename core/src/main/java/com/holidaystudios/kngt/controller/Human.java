@@ -6,6 +6,7 @@ import com.holidaystudios.kngt.model.GameModel;
 import com.holidaystudios.kngt.model.KnightModel;
 import com.holidaystudios.kngt.model.RoomModel;
 import com.holidaystudios.kngt.networking.GameClient;
+import com.holidaystudios.kngt.networking.GameServer;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -29,16 +30,20 @@ public class Human {
 
     public void doMove(DatagramSocket serverSocket, ByteBuffer data) {
         switch(data.get()) {
-            case 0: // north
+            case GameServer.GAME_DIRECTION_NORTH:
+                Gdx.app.log("kngt", "SERVER will move knight: north");
                 knight.move(model, Direction.north);
                 break;
-            case 1: // west
+            case GameServer.GAME_DIRECTION_WEST:
+                Gdx.app.log("kngt", "SERVER will move knight: west");
                 knight.move(model, Direction.west);
                 break;
-            case 2: // south
+            case GameServer.GAME_DIRECTION_SOUTH:
+                Gdx.app.log("kngt", "SERVER will move knight: south");
                 knight.move(model, Direction.south);
                 break;
-            case 3: // east
+            case GameServer.GAME_DIRECTION_EAST:
+                Gdx.app.log("kngt", "SERVER will move knight: east");
                 knight.move(model, Direction.east);
                 break;
         }

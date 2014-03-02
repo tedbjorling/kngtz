@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public class GameServer extends Thread {
 
@@ -86,9 +87,11 @@ public class GameServer extends Thread {
         ByteBuffer data = packetProvider.getReceivePacketBuffer();
 
         if(humans.containsKey(packetProvider.getSourceAddress())) {
+            Gdx.app.log("kngt", "human was located - first byte: " + data.array()[0] + " second byte: " + data.array()[1]);
             Human human = humans.get(packetProvider.getSourceAddress());
             switch(data.get()) {
                 case CL_PACKET_MOVE:
+                    Gdx.app.log("kngt", "CL_PACKET_MOVE detected.");
                     human.doMove(serverSocket, data);
                     break;
             }
@@ -125,9 +128,13 @@ public class GameServer extends Thread {
             float delta = (float)thisTime;
             delta /= 1000.0f; // convert to seconds
             if(currentGame.act(delta)) {
-                Iterator i = humans.entrySet().iterator();
-                while(i.hasNext()) {
-                    Human h = (Human)i.next();
+                Gdx.app.log("kngt", "act returned TRUE.");
+                int k = 0;
+                Set<Map.Entry<InetAddress, Human>> set = humans.entrySet();
+                for(Map.Entry<InetAddress, Human> entry : set) {
+                    Gdx.app.log("kngt", "   act force update: " + k);
+                    k++;
+                    Human h = entry.getValue();
                     try {
                         h.publishCurrentStateRefresh(serverSocket);
                     } catch(IOException e) { /* ignore */ }
