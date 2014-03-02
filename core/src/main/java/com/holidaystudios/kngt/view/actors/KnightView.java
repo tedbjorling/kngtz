@@ -34,7 +34,6 @@ public class KnightView extends Actor {
         listeners.add(toAdd);
     }
 
-
     private void doWalk() {
         switch(model.getDirection()) {
             case north:
@@ -59,6 +58,8 @@ public class KnightView extends Actor {
     @Override
     public void act(float delta){
         super.act(delta);
+        model.act(delta);
+
         updateBounds();
 
         if(model.getStateTime() < model.getStateDuration()) {
@@ -72,17 +73,20 @@ public class KnightView extends Actor {
                     break;
             }
         }
+        setPosition(model.getPosX() * getWidth(), (Defs.TILES_PER_DISTANCE - model.getPosY()) * getHeight());
     }
 
     @Override
     public void draw(SpriteBatch batch, float parentAlpha) {
         Animation anim = UIAssets.knightAnimation;
         batch.setColor(getColor().r, getColor().g, getColor().b, getColor().a);
-        batch.draw(anim.getKeyFrame(model.getStateProgress() * anim.animationDuration), getX() + positionXDelta, getY() + positionYDelta, 32.0f, 32.0f, 64.0f, 64.0f, 1.0f, 1.0f, getRotation());
+        batch.draw(
+                anim.getKeyFrame(model.getStateProgress() * anim.animationDuration), getX() + positionXDelta, getY() + positionYDelta,
+                32.0f, 32.0f, 64.0f, 64.0f, 1.0f, 1.0f, getRotation());
     }
 
     private void updateBounds() {
-        bounds.set(getX(), getY(), getWidth(), getHeight());
+        bounds.set(model.getPosX(), model.getPosY(), getWidth(), getHeight());
     }
 
 }

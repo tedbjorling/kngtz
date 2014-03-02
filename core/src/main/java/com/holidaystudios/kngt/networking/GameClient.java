@@ -7,6 +7,7 @@
 package com.holidaystudios.kngt.networking;
 
 import com.badlogic.gdx.Gdx;
+import com.holidaystudios.kngt.model.Direction;
 import com.holidaystudios.kngt.model.KnightModel;
 import com.holidaystudios.kngt.model.RoomModel;
 import com.holidaystudios.kngt.view.GameView;
@@ -68,6 +69,31 @@ public class GameClient extends Thread implements ViewListener {
             packetProvider.send(socket, serverAddress, GameServer.SERVER_PORT);
         } catch(UnknownHostException e) {
         } catch(IOException e) {
+        }
+    }
+
+    public void sendMove(Direction direction) {
+        ByteBuffer bb = packetProvider.getSendBuffer();
+
+        bb.put(GameServer.CL_PACKET_MOVE);
+        switch(direction) {
+            case east:
+                bb.put(GameServer.GAME_DIRECTION_EAST);
+                break;
+            case west:
+                bb.put(GameServer.GAME_DIRECTION_WEST);
+                break;
+            case north:
+                bb.put(GameServer.GAME_DIRECTION_NORTH);
+                break;
+            case south:
+                bb.put(GameServer.GAME_DIRECTION_SOUTH);
+                break;
+        }
+        try {
+            packetProvider.send(socket, serverAddress, GameServer.SERVER_PORT);
+        } catch(IOException e) {
+            /* xxx ignore */
         }
     }
 

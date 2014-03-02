@@ -27,7 +27,7 @@ public class Human {
         clientAddress = IPAddress;
     }
 
-    public void doMove(ByteBuffer data) {
+    public void doMove(DatagramSocket serverSocket, ByteBuffer data) {
         switch(data.get()) {
             case 0: // north
                 knight.move(model, Direction.north);
@@ -42,17 +42,22 @@ public class Human {
                 knight.move(model, Direction.east);
                 break;
         }
+        try {
+            knight.publishKnight(serverSocket, clientAddress);
+        } catch(IOException e) { /* xxx ignore */ }
     }
 
     public void publishCurrentState(DatagramSocket serverSocket) throws IOException {
         byte[][] room = model.getRoomBitmap(Integer.valueOf(knight.getRoomX()), Integer.valueOf(knight.getRoomY()));
-        if(room != null) {
-            RoomModel.publishRoomBitmap(
-                    room, serverSocket,
-                    clientAddress, GameClient.CLIENT_PORT);
-        } else {
-            Gdx.app.log("kngt", "Current Knight model room is NULL.");
-        }
+        RoomModel.publishRoomBitmap(
+                room, serverSocket,
+                clientAddress, GameClient.CLIENT_PORT);
         knight.publishKnight(serverSocket, clientAddress);
     }
+
+    public void publishCurrentStateRefresh(DatagramSocket serverSocket) throws IOException {
+        knight.publishKnight(serverSocket, clientAddress);
+    }
+
+
 }

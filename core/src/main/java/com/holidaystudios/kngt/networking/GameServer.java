@@ -17,18 +17,25 @@ import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class GameServer extends Thread {
+
+    public final static byte GAME_DIRECTION_NORTH = 4;
+    public final static byte GAME_DIRECTION_WEST = 5;
+    public final static byte GAME_DIRECTION_SOUTH = 6;
+    public final static byte GAME_DIRECTION_EAST = 7;
+
     public final static int SERVER_PORT = 9876;
 
     public final static int MAXIMUM_WAIT_FOR_READ = 10; // milliseconds to wait for a packet
 
-    public final static byte CL_PACKET_LOGIN_USER = 04;
-    public final static byte CL_PACKET_MOVE = 05;
+    public final static byte CL_PACKET_LOGIN_USER = 4;
+    public final static byte CL_PACKET_MOVE = 5;
 
-    public final static byte SR_PACKET_ROOM_MAP = 02;
-    public final static byte SR_PACKET_KNIGHT_STATE = 03;
+    public final static byte SR_PACKET_ROOM_MAP = 2;
+    public final static byte SR_PACKET_KNIGHT_STATE = 3;
 
     Map<InetAddress, Human> humans = new HashMap<InetAddress, Human>(10);
 
@@ -82,7 +89,7 @@ public class GameServer extends Thread {
             Human human = humans.get(packetProvider.getSourceAddress());
             switch(data.get()) {
                 case CL_PACKET_MOVE:
-                    human.doMove(data);
+                    human.doMove(serverSocket, data);
                     break;
             }
         } else if(data.get() == CL_PACKET_LOGIN_USER) {
@@ -114,8 +121,18 @@ public class GameServer extends Thread {
             // game model should act on time
             thisTime = System.nanoTime();
             thisTime -= lastTime;
-            thisTime /= 1000000; // convert to milliseconds
-            currentGame.act((int)thisTime);
+            thisTime /= 1000000; // convert from nano to milliseconds
+            float delta = (float)thisTime;
+            delta /= 1000.0f; // convert to seconds
+            if(currentGame.act(delta)) {
+                Iterator i = humans.entrySet().iterator();
+                while(i.hasNext()) {
+                    Human h = (Human)i.next();
+                    try {
+                        h.publishCurrentStateRefresh(serverSocket);
+                    } catch(IOException e) { /* ignore */ }
+                }
+            }
 
             try {
                 packetProvider.receive(serverSocket);

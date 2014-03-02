@@ -1,5 +1,6 @@
 package com.holidaystudios.kngt.model;
 
+import com.badlogic.gdx.Gdx;
 import com.holidaystudios.kngt.TileTypes;
 import com.holidaystudios.kngt.networking.GameClient;
 import com.holidaystudios.kngt.networking.GamePacketProvider;
@@ -95,6 +96,10 @@ public class KnightModel {
         sendData.putInt(posY);
 
         packetProvider.send(serverSocket, IPAddress, GameClient.CLIENT_PORT);
+
+        Gdx.app.log("kngt",
+                "Published: (" + state.toString() + ") time: " + stateTime + " duration: " + stateDuration + " progress: " + stateProgress + " direction: " + direction.toString() +
+                        " pos(" + posX + ", " + posY + ")");
     }
 
     public void consumePublishedKnight(ByteBuffer bb) {
@@ -128,6 +133,10 @@ public class KnightModel {
 
         posX = bb.getInt();
         posY = bb.getInt();
+
+        Gdx.app.log("kngt",
+                "Consumed: (" + state.toString() + ") time: " + stateTime + " duration: " + stateDuration + " progress: " + stateProgress + " direction: " + direction.toString() +
+                " pos(" + posX + ", " + posY + ")");
     }
 
     public KnightModel(int _knightID) {
@@ -146,19 +155,45 @@ public class KnightModel {
             }
 
             final int targetTile = gameModel.getRoomBitmap(roomX, roomY)[py][px];
-            if (targetTile == TileTypes.TILE_FLOOR) {
-                posX = px; posY = py;
 
-            } else if (targetTile == TileTypes.TILE_DOOR) {
-//                for (ControllerListener vl : listeners)
-//                    vl.handleControllerEvent(ControllerListener.EventType.knightNewRoom, this, d);
+            switch(targetTile) {
+                case TileTypes.TILE_DOOR:
+                case TileTypes.TILE_FLOOR:
+                    direction = _direction;
+                    state = State.walk;
+                    stateTime = 0.0f;
+                    stateDuration = WALK_DURATION;
+                    break;
+                case TileTypes.TILE_NONE:
+                case TileTypes.TILE_WALL:
+                    break;
             }
-
-            direction = _direction;
-            state = State.walk;
-            stateTime = 0.0f;
-            stateDuration = WALK_DURATION;
         }
+    }
+
+    public boolean act(float delta) {
+        int px= posX; int py = posY;
+        switch (direction) {
+            case east: px++; break;
+            case west: py--; break;
+            case north: py--; break;
+            case south: px++; break;
+        }
+        switch(state) {
+            case stand:
+                break;
+            case walk:
+                stateTime += delta;
+                stateProgress = stateTime / stateDuration;
+                if(stateTime >= stateDuration) {
+                    state = State.stand;
+                    stateTime = stateDuration = stateProgress = 0.0f;
+                    posX = px; posY = py;
+                    return true;
+                }
+                break;
+        }
+        return false;
     }
 
     public int getRoomX() {
@@ -181,6 +216,6 @@ public class KnightModel {
 
     public void setPosition(int posX, int posY) {
         this.posX = posX;
-        this.posX = posY;
+        this.posY = posY;
     }
 }

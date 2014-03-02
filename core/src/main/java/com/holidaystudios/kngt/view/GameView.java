@@ -22,6 +22,7 @@ import com.holidaystudios.kngt.Defs;
 import com.holidaystudios.kngt.model.Direction;
 import com.holidaystudios.kngt.TileTypes;
 import com.holidaystudios.kngt.model.GameModel;
+import com.holidaystudios.kngt.networking.GameClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -153,8 +154,8 @@ public class GameView implements Screen, GestureListener, InputProcessor {
                 else
                     d = Direction.south;
             }
-            for (ViewListener vl : listeners)
-                vl.handleViewEvent(ViewListener.EventType.fling, d);
+
+            GameClient.instance.sendMove(d);
         }
 
         return false;
