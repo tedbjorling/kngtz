@@ -171,7 +171,7 @@ public class GameClient extends Thread implements ViewListener {
                 parseKnightState(bb);
                 break;
         }
-
+        bb.rewind();
         freeBuffers.add(bb);
     }
 
