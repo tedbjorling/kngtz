@@ -18,11 +18,13 @@ import java.nio.ByteBuffer;
  */
 public class Human {
 
+    private int humanID;
     private GameModel model;
     private KnightModel knight;
     private InetAddress clientAddress;
 
-    public Human(GameModel _model, KnightModel _knight, InetAddress IPAddress) {
+    public Human(int _humanID, GameModel _model, KnightModel _knight, InetAddress IPAddress) {
+        humanID = _humanID;
         model = _model;
         knight = _knight;
         clientAddress = IPAddress;
@@ -53,15 +55,18 @@ public class Human {
     }
 
     public void publishCurrentState(DatagramSocket serverSocket) throws IOException {
+        Gdx.app.log("kngt", "publishCurrentState for human #" + humanID);
         byte[][] room = model.getRoomBitmap(Integer.valueOf(knight.getRoomX()), Integer.valueOf(knight.getRoomY()));
         RoomModel.publishRoomBitmap(
                 room, serverSocket,
                 clientAddress, GameClient.CLIENT_PORT);
-        knight.publishKnight(serverSocket, clientAddress);
+
+        publishCurrentStateRefresh(serverSocket);
     }
 
     public void publishCurrentStateRefresh(DatagramSocket serverSocket) throws IOException {
         knight.publishKnight(serverSocket, clientAddress);
+        model.publishOtherActorsNear(knight, serverSocket, clientAddress);
     }
 
 

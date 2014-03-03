@@ -6,6 +6,9 @@ import com.holidaystudios.kngt.TileTypes;
 import com.holidaystudios.kngt.networking.GameServer;
 import com.sun.java_cup.internal.runtime.virtual_parse_stack;
 
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,8 +32,8 @@ public class GameModel {
         knights.add(knight);
 
         //Pick a random room
-        final int roomX = (int) Math.floor(Math.random() * cave.getRoomsX());
-        final int roomY = (int) Math.floor(Math.random() * cave.getRoomsY());
+        final int roomX = 1; //(int) Math.floor(Math.random() * cave.getRoomsX());
+        final int roomY = 1; //(int) Math.floor(Math.random() * cave.getRoomsY());
         knight.setRoom(roomX, roomY);
 
         //Pick a random "available" position inside of this room
@@ -67,5 +70,16 @@ public class GameModel {
         }
 
         return refreshPublish;
+    }
+
+    public void publishOtherActorsNear(KnightModel knight, DatagramSocket serverSocket, InetAddress clientAddress) throws IOException {
+        Gdx.app.log("kngt", "will publish other actors... for knight: " + knight.toString());
+        for(KnightModel otherKnight : knights) {
+            Gdx.app.log("kngt", "Will compare knight to " + otherKnight.toString() +" is in same room? " + otherKnight.isInSameRoomAs(knight));
+            if(otherKnight != knight && otherKnight.isInSameRoomAs(knight)) {
+                otherKnight.publishKnight(serverSocket, clientAddress);
+            }
+        }
+
     }
 }

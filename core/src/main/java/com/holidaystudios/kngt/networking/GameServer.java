@@ -80,7 +80,7 @@ public class GameServer extends Thread {
     }
 
     private Human loginNewUser(InetAddress address) {
-        return new Human(currentGame, currentGame.addKnight(GameServer.this), address);
+        return new Human(humans.size(), currentGame, currentGame.addKnight(GameServer.this), address);
     }
 
     private void decodePacket() {

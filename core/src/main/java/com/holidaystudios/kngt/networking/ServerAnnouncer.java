@@ -65,7 +65,7 @@ public class ServerAnnouncer {
 
                 serviceInfo = ServiceInfo.create(
                         SERVER_IDENTIFIER,
-                        "KNGTZ", 0,
+                        "KNGTZ", GameServer.SERVER_PORT,
                         "KNGTZ GameServer");
 
                 jmdns.registerService(serviceInfo);

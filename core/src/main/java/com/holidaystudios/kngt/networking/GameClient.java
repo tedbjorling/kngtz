@@ -60,8 +60,11 @@ public class GameClient extends Thread implements ViewListener {
     }
 
     public void logInTo(String hostName) {
+        Gdx.app.log("kngt", "CLIENT will try to connect to: " + hostName);
         try {
             serverAddress = InetAddress.getByName(hostName);
+            Gdx.app.log("kngt", "Address resolve: " + serverAddress.toString());
+
             ByteBuffer bb = packetProvider.getSendBuffer();
 
             bb.put(GameServer.CL_PACKET_LOGIN_USER);

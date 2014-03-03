@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
 /**
  * Created by tedbjorling on 2014-02-25.
  */
-public class KnightModel {
+public class KnightModel extends ActorModel {
 
     private final static float WALK_DURATION = 0.33f;
 
@@ -28,11 +28,6 @@ public class KnightModel {
     float stateDuration = 0.0f; // in seconds
     float stateProgress = 0.0f; // from 0.0f to 1.0f inclusive
     Direction direction = Direction.north;
-
-    int roomX;
-    int roomY;
-    int posX;
-    int posY;
 
     public int getKnightID() {
         return knightID;
@@ -98,7 +93,7 @@ public class KnightModel {
         packetProvider.send(serverSocket, IPAddress, GameClient.CLIENT_PORT);
 
         Gdx.app.log("kngt",
-                "Published: (" + state.toString() + ") time: " + stateTime + " duration: " + stateDuration + " progress: " + stateProgress + " direction: " + direction.toString() +
+                "Published #" + knightID +": (" + state.toString() + ") time: " + stateTime + " duration: " + stateDuration + " progress: " + stateProgress + " direction: " + direction.toString() +
                         " pos(" + posX + ", " + posY + ")");
     }
 
@@ -135,7 +130,7 @@ public class KnightModel {
         posY = bb.getInt();
 
         Gdx.app.log("kngt",
-                "Consumed: (" + state.toString() + ") time: " + stateTime + " duration: " + stateDuration + " progress: " + stateProgress + " direction: " + direction.toString() +
+                "Consumed #" + knightID + ": (" + state.toString() + ") time: " + stateTime + " duration: " + stateDuration + " progress: " + stateProgress + " direction: " + direction.toString() +
                 " pos(" + posX + ", " + posY + ")");
     }
 
