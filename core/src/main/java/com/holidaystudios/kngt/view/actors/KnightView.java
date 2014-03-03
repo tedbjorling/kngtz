@@ -62,6 +62,9 @@ public class KnightView extends Actor {
 
         updateBounds();
 
+        positionXDelta = 0.0f;
+        positionYDelta = 0.0f;
+
         if(model.getStateTime() < model.getStateDuration()) {
             switch(model.getState()) {
                 case walk:
@@ -74,6 +77,21 @@ public class KnightView extends Actor {
             }
         }
         setPosition(model.getPosX() * getWidth(), (Defs.TILES_PER_DISTANCE - model.getPosY()) * getHeight());
+
+        switch(model.getDirection()) {
+            case north:
+                setRotation(0.0f);
+                break;
+            case west:
+                setRotation(90.0f);
+                break;
+            case south:
+                setRotation(180.0f);
+                break;
+            case east:
+                setRotation(270.0f);
+                break;
+        }
     }
 
     @Override

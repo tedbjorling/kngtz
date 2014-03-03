@@ -175,9 +175,9 @@ public class KnightModel {
         int px= posX; int py = posY;
         switch (direction) {
             case east: px++; break;
-            case west: py--; break;
+            case west: px--; break;
             case north: py--; break;
-            case south: px++; break;
+            case south: py++; break;
         }
         switch(state) {
             case stand:
