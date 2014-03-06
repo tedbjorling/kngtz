@@ -89,11 +89,15 @@ public class GameServer extends Thread {
         if(humans.containsKey(packetProvider.getSourceAddress())) {
             Gdx.app.log("kngt", "human was located - first byte: " + data.array()[0] + " second byte: " + data.array()[1]);
             Human human = humans.get(packetProvider.getSourceAddress());
-            switch(data.get()) {
-                case CL_PACKET_MOVE:
-                    Gdx.app.log("kngt", "CL_PACKET_MOVE detected.");
-                    human.doMove(serverSocket, data);
-                    break;
+            try {
+                switch(data.get()) {
+                    case CL_PACKET_MOVE:
+                        Gdx.app.log("kngt", "CL_PACKET_MOVE detected.");
+                        human.doMove(serverSocket, data);
+                        break;
+                }
+            } catch(IOException e) {
+                /* xxx ignore currently */
             }
         } else if(data.get() == CL_PACKET_LOGIN_USER) {
             Gdx.app.log("kngt", "SERVER received login request.");
@@ -121,26 +125,27 @@ public class GameServer extends Thread {
         long lastTime = System.nanoTime();
         long thisTime;
         while(running) {
+            // publish current state (this relies on the dirty flag being set properly
+            Set<Map.Entry<InetAddress, Human>> set = humans.entrySet();
+            for(Map.Entry<InetAddress, Human> entry : set) {
+                Human h = entry.getValue();
+                try {
+                    h.publishCurrentStateRefresh(serverSocket, false);
+                } catch(IOException e) { /* ignore */ }
+            }
+
+            // clear dirty flags
+            currentGame.clearDirtyFlags();
+
             // game model should act on time
             thisTime = System.nanoTime();
             thisTime -= lastTime;
             thisTime /= 1000000; // convert from nano to milliseconds
             float delta = (float)thisTime;
             delta /= 1000.0f; // convert to seconds
-            if(currentGame.act(delta)) {
-                Gdx.app.log("kngt", "act returned TRUE.");
-                int k = 0;
-                Set<Map.Entry<InetAddress, Human>> set = humans.entrySet();
-                for(Map.Entry<InetAddress, Human> entry : set) {
-                    Gdx.app.log("kngt", "   act force update: " + k);
-                    k++;
-                    Human h = entry.getValue();
-                    try {
-                        h.publishCurrentStateRefresh(serverSocket);
-                    } catch(IOException e) { /* ignore */ }
-                }
-            }
+            currentGame.act(delta);
 
+            // receive new packets
             try {
                 packetProvider.receive(serverSocket);
                 Gdx.app.log("kngt", "SERVER received packet.");

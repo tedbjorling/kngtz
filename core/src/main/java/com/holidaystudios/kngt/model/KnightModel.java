@@ -92,9 +92,9 @@ public class KnightModel extends ActorModel {
 
         packetProvider.send(serverSocket, IPAddress, GameClient.CLIENT_PORT);
 
-        Gdx.app.log("kngt",
-                "Published #" + knightID +": (" + state.toString() + ") time: " + stateTime + " duration: " + stateDuration + " progress: " + stateProgress + " direction: " + direction.toString() +
-                        " pos(" + posX + ", " + posY + ")");
+//        Gdx.app.log("kngt",
+//                "Published #" + knightID +": (" + state.toString() + ") time: " + stateTime + " duration: " + stateDuration + " progress: " + stateProgress + " direction: " + direction.toString() +
+//                        " pos(" + posX + ", " + posY + ") to device at: " + IPAddress);
     }
 
     public void consumePublishedKnight(ByteBuffer bb) {
@@ -129,9 +129,9 @@ public class KnightModel extends ActorModel {
         posX = bb.getInt();
         posY = bb.getInt();
 
-        Gdx.app.log("kngt",
-                "Consumed #" + knightID + ": (" + state.toString() + ") time: " + stateTime + " duration: " + stateDuration + " progress: " + stateProgress + " direction: " + direction.toString() +
-                " pos(" + posX + ", " + posY + ")");
+//        Gdx.app.log("kngt",
+//                "Consumed #" + knightID + ": (" + state.toString() + ") time: " + stateTime + " duration: " + stateDuration + " progress: " + stateProgress + " direction: " + direction.toString() +
+//                " pos(" + posX + ", " + posY + ")");
     }
 
     public KnightModel(int _knightID) {
@@ -139,6 +139,8 @@ public class KnightModel extends ActorModel {
     }
 
     public void move(GameModel gameModel, Direction _direction) {
+        dirtyFlag = true;
+
         if(state == State.stand) {
             //What is the target tile?
             int px= posX; int py = posY;
@@ -166,7 +168,7 @@ public class KnightModel extends ActorModel {
         }
     }
 
-    public boolean act(float delta) {
+    public void act(float delta) {
         int px= posX; int py = posY;
         switch (direction) {
             case east: px++; break;
@@ -184,11 +186,10 @@ public class KnightModel extends ActorModel {
                     state = State.stand;
                     stateTime = stateDuration = stateProgress = 0.0f;
                     posX = px; posY = py;
-                    return true;
+                    dirtyFlag = true;
                 }
                 break;
         }
-        return false;
     }
 
     public int getRoomX() {

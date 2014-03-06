@@ -16,6 +16,8 @@ import java.nio.ByteBuffer;
  */
 public class ActorModel {
 
+    public boolean dirtyFlag; // this is a flag that indicates the server state of this actor change - i.e the actor needs to be republished to the clients observing it.
+
     int roomX;
     int roomY;
     int posX;

@@ -30,7 +30,7 @@ public class Human {
         clientAddress = IPAddress;
     }
 
-    public void doMove(DatagramSocket serverSocket, ByteBuffer data) {
+    public void doMove(DatagramSocket serverSocket, ByteBuffer data) throws IOException {
         switch(data.get()) {
             case GameServer.GAME_DIRECTION_NORTH:
                 Gdx.app.log("kngt", "SERVER will move knight: north");
@@ -49,9 +49,6 @@ public class Human {
                 knight.move(model, Direction.east);
                 break;
         }
-        try {
-            knight.publishKnight(serverSocket, clientAddress);
-        } catch(IOException e) { /* xxx ignore */ }
     }
 
     public void publishCurrentState(DatagramSocket serverSocket) throws IOException {
@@ -61,12 +58,11 @@ public class Human {
                 room, serverSocket,
                 clientAddress, GameClient.CLIENT_PORT);
 
-        publishCurrentStateRefresh(serverSocket);
+        publishCurrentStateRefresh(serverSocket, true);
     }
 
-    public void publishCurrentStateRefresh(DatagramSocket serverSocket) throws IOException {
-        knight.publishKnight(serverSocket, clientAddress);
-        model.publishOtherActorsNear(knight, serverSocket, clientAddress);
+    public void publishCurrentStateRefresh(DatagramSocket serverSocket, boolean ignoreDirtyFlag) throws IOException {
+        model.publishActorsNear(knight, serverSocket, clientAddress, ignoreDirtyFlag);
     }
 
 

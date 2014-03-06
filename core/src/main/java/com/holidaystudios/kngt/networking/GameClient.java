@@ -113,9 +113,9 @@ public class GameClient extends Thread implements ViewListener {
             ByteBuffer bb = getFreeBuffer();
             try {
                 recvPacket.setData(bb.array());
-                Gdx.app.log("kngt", "CLIENT waiting.");
+//                Gdx.app.log("kngt", "CLIENT waiting.");
                 socket.receive(recvPacket);
-                Gdx.app.log("kngt", "CLIENT received.");
+//                Gdx.app.log("kngt", "CLIENT received.");
 
                 while(bb != null) {
                     try {

@@ -8,6 +8,8 @@ import android.content.ServiceConnection;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.IBinder;
+import android.view.WindowManager;
+
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.holidaystudios.kngt.KngtzMain;
@@ -65,5 +67,7 @@ public class MainActivity extends AndroidApplication {
         // create game components
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		initialize(new KngtzMain(), config);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 }

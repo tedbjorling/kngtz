@@ -39,8 +39,8 @@ public class KngtzMain extends com.badlogic.gdx.Game {
 
 	@Override
 	public void render () {
-        super.render();
         gameClient.processEvents();
+        super.render();
 	}
 
     @Override

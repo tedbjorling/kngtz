@@ -59,27 +59,29 @@ public class GameModel {
         return this.cave.getRoomBitmap(cx, cy);
     }
 
-    public boolean act(float secondsDelta) {
-        boolean refreshPublish = false;
-
+    public void act(float secondsDelta) {
         ListIterator<KnightModel> i = knights.listIterator();
 
         while(i.hasNext()) {
             KnightModel k = i.next();
-            refreshPublish = refreshPublish || k.act(secondsDelta);
+            k.act(secondsDelta);
         }
-
-        return refreshPublish;
     }
 
-    public void publishOtherActorsNear(KnightModel knight, DatagramSocket serverSocket, InetAddress clientAddress) throws IOException {
-        Gdx.app.log("kngt", "will publish other actors... for knight: " + knight.toString());
+    // this will publish all actors (including knight) in the same room as knight
+    public void publishActorsNear(KnightModel knight, DatagramSocket serverSocket, InetAddress clientAddress, boolean ignoreDirtyFlag) throws IOException {
         for(KnightModel otherKnight : knights) {
-            Gdx.app.log("kngt", "Will compare knight to " + otherKnight.toString() +" is in same room? " + otherKnight.isInSameRoomAs(knight));
-            if(otherKnight != knight && otherKnight.isInSameRoomAs(knight)) {
+//            Gdx.app.log("kngt", "Will compare knight to " + otherKnight.toString() +" is in same room? " + otherKnight.isInSameRoomAs(knight));
+            // only publish actors marked dirty, and if they are in the same room as knight (which includes knight)
+            if((ignoreDirtyFlag || otherKnight.dirtyFlag) && otherKnight.isInSameRoomAs(knight)) {
                 otherKnight.publishKnight(serverSocket, clientAddress);
             }
         }
+    }
 
+    public void clearDirtyFlags() {
+        for(KnightModel knight : knights) {
+            knight.dirtyFlag = false;
+        }
     }
 }

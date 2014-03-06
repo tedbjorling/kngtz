@@ -32,7 +32,7 @@ public class GamePacketProvider {
         sendPacket.setAddress(IPAddress);
         sendPacket.setPort(port);
 
-        Gdx.app.log("kngt", "SEND peek at packet: " + sendPacketBuffer.array()[0]);
+//        Gdx.app.log("kngt", "SEND peek at packet: " + sendPacketBuffer.array()[0]);
 
         serverSocket.send(sendPacket);
     }
@@ -42,9 +42,9 @@ public class GamePacketProvider {
 
     public void receive(DatagramSocket socket) throws IOException, SocketTimeoutException {
         socket.receive(receivePacket);
-        Gdx.app.log("kngt", "peek at packet A: " + receivePacketBuffer.array()[0]);
+//        Gdx.app.log("kngt", "peek at packet A: " + receivePacketBuffer.array()[0]);
         receivePacketBuffer.rewind();
-        Gdx.app.log("kngt", "peek at packet B: " + receivePacketBuffer.array()[0]);
+//        Gdx.app.log("kngt", "peek at packet B: " + receivePacketBuffer.array()[0]);
     }
 
     public ByteBuffer getReceivePacketBuffer() {
