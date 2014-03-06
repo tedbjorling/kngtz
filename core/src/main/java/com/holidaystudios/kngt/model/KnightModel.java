@@ -135,6 +135,7 @@ public class KnightModel extends ActorModel {
     }
 
     public KnightModel(int _knightID) {
+        super();
         knightID = _knightID;
     }
 
