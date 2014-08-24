@@ -19,7 +19,7 @@ public class StartupActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_startup);
-        myMediaPlayer = MediaPlayer.create(this, R.raw.menu_soundtrack);
+        myMediaPlayer = MediaPlayer.create(this, R.raw.soundtrack);
         myMediaPlayer.start();
     }
 
