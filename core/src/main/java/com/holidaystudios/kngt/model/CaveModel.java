@@ -27,6 +27,14 @@ public class CaveModel {
         return rooms[cy][cx].getBitmap();
     }
 
+    public int getRoomDoorXPosition(final Integer cx, final Integer cy, Direction direction) {
+        return rooms[cy][cx].getDoorPositionX(direction);
+    }
+
+    public int getRoomDoorYPosition(final Integer cx, final Integer cy, Direction direction) {
+        return rooms[cy][cx].getDoorPositionY(direction);
+    }
+
     public byte[][] getBitmap() {
 
         final byte[][] caveBitmap = new byte[Defs.TILES_PER_DISTANCE*rooms.length][Defs.TILES_PER_DISTANCE*rooms.length];
@@ -121,13 +129,13 @@ public class CaveModel {
                         final RoomModel roomBelow = rooms[cy+1][cx];
 
                         //Does the room below has a door pointing upwards?
-                        if (roomBelow.hasDoor(RoomModel.DoorPosition.N)) {
-                            thisRoom.setDoor(RoomModel.DoorPosition.S, roomBelow.getDoor(RoomModel.DoorPosition.N));
+                        if (roomBelow.hasDoor(Direction.north)) {
+                            thisRoom.setDoorOffset(Direction.south, roomBelow.getDoorOffset(Direction.north));
                         } else {
                             if (RandomUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
-                                thisRoom.setDoor(RoomModel.DoorPosition.S, doorOffset);
-                                roomBelow.setDoor(RoomModel.DoorPosition.N, doorOffset);
+                                thisRoom.setDoorOffset(Direction.south, doorOffset);
+                                roomBelow.setDoorOffset(Direction.north, doorOffset);
                             }
                         }
                     }
@@ -137,13 +145,13 @@ public class CaveModel {
                         final RoomModel roomAbove = rooms[cy-1][cx];
 
                         //Does the room above has a door pointing downwards?
-                        if (roomAbove.hasDoor(RoomModel.DoorPosition.S)) {
-                            thisRoom.setDoor(RoomModel.DoorPosition.N, roomAbove.getDoor(RoomModel.DoorPosition.S));
+                        if (roomAbove.hasDoor(Direction.south)) {
+                            thisRoom.setDoorOffset(Direction.north, roomAbove.getDoorOffset(Direction.south));
                         } else {
                             if (RandomUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
-                                thisRoom.setDoor(RoomModel.DoorPosition.N, doorOffset);
-                                roomAbove.setDoor(RoomModel.DoorPosition.S, doorOffset);
+                                thisRoom.setDoorOffset(Direction.north, doorOffset);
+                                roomAbove.setDoorOffset(Direction.south, doorOffset);
                             }
                         }
                     }
@@ -153,13 +161,13 @@ public class CaveModel {
                         final RoomModel roomLeft = rooms[cy][cx-1];
 
                         //Does the room to the left has a door pointing right?
-                        if (roomLeft.hasDoor(RoomModel.DoorPosition.E)) {
-                            thisRoom.setDoor(RoomModel.DoorPosition.W, roomLeft.getDoor(RoomModel.DoorPosition.E));
+                        if (roomLeft.hasDoor(Direction.east)) {
+                            thisRoom.setDoorOffset(Direction.west, roomLeft.getDoorOffset(Direction.east));
                         } else {
                             if (RandomUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
-                                thisRoom.setDoor(RoomModel.DoorPosition.W, doorOffset);
-                                roomLeft.setDoor(RoomModel.DoorPosition.E, doorOffset);
+                                thisRoom.setDoorOffset(Direction.west, doorOffset);
+                                roomLeft.setDoorOffset(Direction.east, doorOffset);
                             }
                         }
                     }
@@ -169,13 +177,13 @@ public class CaveModel {
                         final RoomModel roomRight = rooms[cy][cx+1];
 
                         //Does the room to the right has a door pointing left?
-                        if (roomRight.hasDoor(RoomModel.DoorPosition.W)) {
-                            thisRoom.setDoor(RoomModel.DoorPosition.E, roomRight.getDoor(RoomModel.DoorPosition.W));
+                        if (roomRight.hasDoor(Direction.west)) {
+                            thisRoom.setDoorOffset(Direction.east, roomRight.getDoorOffset(Direction.west));
                         } else {
                             if (RandomUtils.getRandom() > 0.5) {
                                 final Integer doorOffset = createDoorPositionHelper();
-                                thisRoom.setDoor(RoomModel.DoorPosition.E, doorOffset);
-                                roomRight.setDoor(RoomModel.DoorPosition.W, doorOffset);
+                                thisRoom.setDoorOffset(Direction.east, doorOffset);
+                                roomRight.setDoorOffset(Direction.west, doorOffset);
                             }
                         }
                     }

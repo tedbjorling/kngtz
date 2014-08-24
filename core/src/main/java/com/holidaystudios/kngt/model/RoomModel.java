@@ -1,6 +1,7 @@
 package com.holidaystudios.kngt.model;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.holidaystudios.kngt.Coordinate;
 import com.holidaystudios.kngt.TileTypes;
 import com.holidaystudios.kngt.networking.GamePacketProvider;
 import com.holidaystudios.kngt.networking.GameServer;
@@ -19,14 +20,22 @@ import java.util.Map;
  */
 public class RoomModel {
 
-    public enum DoorPosition {
-        S, W, E, N
+    public class DoorData {
+        public int x, y, offset;
+    }
+
+    static public class NewRoomException extends Throwable {
+        public Direction direction;
+
+        public NewRoomException(Direction newDir) {
+            direction = newDir;
+        }
     }
 
     private final static Integer MIN_WALL_LENGTH = 3;
     private Integer posX, posY, pixelX, pixelY, pixelWidth, pixelHeight, tilesPerDistance;
     private byte[][] bitmap;
-    private Map<DoorPosition, Integer> doors = new HashMap<DoorPosition, Integer>();
+    private Map<Direction, DoorData> doors = new HashMap<Direction, DoorData>();
 
     public RoomModel(final Integer posX, final Integer posY, final Integer tilesPerDistance) {
         this.posX = posX;
@@ -54,35 +63,39 @@ public class RoomModel {
         }
     }
 
-    private boolean hasAnyDoor(final Map<DoorPosition, Integer> _doors) {
-        return _doors.containsKey(DoorPosition.N)
-            || _doors.containsKey(DoorPosition.S)
-            || _doors.containsKey(DoorPosition.E)
-            || _doors.containsKey(DoorPosition.W);
-    }
-
     public boolean hasAnyDoor() {
-        return this.hasAnyDoor(this.doors);
+        return doors.containsKey(Direction.north)
+                || doors.containsKey(Direction.south)
+                || doors.containsKey(Direction.east)
+                || doors.containsKey(Direction.west);
     }
 
-    private boolean hasDoor(final Map<DoorPosition, Integer> _doors, final DoorPosition pos) {
-        return _doors.containsKey(pos);
+    public boolean hasDoor(final Direction direction) {
+        return doors.containsKey(direction);
     }
 
-    public boolean hasDoor(final DoorPosition pos) {
-        return this.hasDoor(this.doors, pos);
+    public int getDoorOffset(final Direction direction) {
+        return doors.get(direction).offset;
     }
 
-    private Integer getDoor(final Map<DoorPosition, Integer> _doors, final DoorPosition pos) {
-        return _doors.get(pos);
+    public int getDoorPositionX(final Direction direction) {
+        return doors.get(direction).x;
     }
 
-    public Integer getDoor(final DoorPosition pos) {
-        return this.getDoor(this.doors, pos);
+    public int getDoorPositionY(final Direction direction) {
+        return doors.get(direction).y;
     }
 
-    public void setDoor(final DoorPosition pos, final Integer offset) {
-        doors.put(pos, offset);
+    public void setDoorOffset(final Direction direction, final Integer offset) {
+        DoorData dd = null;
+        if(doors.containsKey(direction)) {
+            dd = doors.get(direction);
+            dd.offset = offset;
+        } else {
+            dd = new DoorData();
+            dd.offset = offset;
+            doors.put(direction, dd);
+        }
     }
 
     public byte[][] getBitmap() {
@@ -115,30 +128,30 @@ public class RoomModel {
         }
     }
 
-    private void connectDoors(final Map<DoorPosition, Integer> _doors) {
+    private void connectDoors(final Map<Direction, Integer> twoDoors) {
         //Create a corridor
         //First, how wide should it be?
         final Integer corridorBreadth = Math.max(5, (int) Math.round(RandomUtils.getRandom()*7));
 
-        if ((this.hasDoor(_doors, DoorPosition.N) || this.hasDoor(_doors, DoorPosition.S))
-         && (this.hasDoor(_doors, DoorPosition.W) || this.hasDoor(_doors, DoorPosition.E))) {
+        if ((twoDoors.containsKey(Direction.north) || twoDoors.containsKey(Direction.south))
+            && (twoDoors.containsKey(Direction.west) || twoDoors.containsKey(Direction.east))) {
             //Knee corridor
 
             //Simply enclose the room in an arbitrarily sized rectangle
             final Rectangle dim = new Rectangle(
-                this.hasDoor(_doors, DoorPosition.N)? this.getDoor(_doors, DoorPosition.N) : this.getDoor(_doors, DoorPosition.S),
-                this.hasDoor(_doors, DoorPosition.E)? this.getDoor(_doors, DoorPosition.E) : this.getDoor(_doors, DoorPosition.W),
+                twoDoors.containsKey(Direction.north)? twoDoors.get(Direction.north) : twoDoors.get(Direction.south),
+                twoDoors.containsKey(Direction.east)? twoDoors.get(Direction.east) : twoDoors.get(Direction.west),
                 0,
                 0
             );
 
-            if (this.hasDoor(_doors, DoorPosition.E)) {
+            if (twoDoors.containsKey(Direction.east)) {
                 dim.width = this.pixelWidth - dim.x;
             } else {
                 dim.width = dim.x;
             }
 
-            if (this.hasDoor(_doors, DoorPosition.S)) {
+            if (twoDoors.containsKey(Direction.south)) {
                 dim.height = this.pixelWidth - dim.y;
             } else {
                 dim.height = dim.y;
@@ -151,13 +164,13 @@ public class RoomModel {
             dim.height = Math.min(this.pixelHeight, dim.height);
 
             //Nudge
-            if (this.hasDoor(_doors, DoorPosition.E)) {
+            if (twoDoors.containsKey(Direction.east)) {
                 dim.x = Math.max(0, Math.min(this.pixelWidth-dim.width, dim.x));
             } else {
                 dim.x = 0;
             }
 
-            if (this.hasDoor(_doors, DoorPosition.S)) {
+            if (twoDoors.containsKey(Direction.south)) {
                 dim.y = Math.max(0, Math.min(this.pixelHeight-dim.height, dim.y));
             } else {
                 dim.y = 0;
@@ -174,11 +187,11 @@ public class RoomModel {
                     }
                 }
             }
-        } else if (this.hasDoor(_doors, DoorPosition.N) && this.hasDoor(_doors, DoorPosition.S)) {
+        } else if (twoDoors.containsKey(Direction.north) && twoDoors.containsKey(Direction.south)) {
             //Vertical corridor
 
-            int nX = Math.max(1, Math.min(this.pixelWidth-corridorBreadth-1, Math.round(this.getDoor(_doors, DoorPosition.N) - corridorBreadth/2)));
-            int sX = Math.max(1, Math.min(this.pixelWidth-corridorBreadth-1, Math.round(this.getDoor(_doors, DoorPosition.S) - corridorBreadth/2)));
+            int nX = Math.max(1, Math.min(this.pixelWidth-corridorBreadth-1, Math.round(twoDoors.get(Direction.north) - corridorBreadth/2)));
+            int sX = Math.max(1, Math.min(this.pixelWidth-corridorBreadth-1, Math.round(twoDoors.get(Direction.south) - corridorBreadth/2)));
 
             if (nX == sX) {
                 //Straight corridor
@@ -231,11 +244,11 @@ public class RoomModel {
             }
 
 
-        } else if (this.hasDoor(_doors, DoorPosition.E) && this.hasDoor(_doors, DoorPosition.W)) {
+        } else if (twoDoors.containsKey(Direction.east) && twoDoors.containsKey(Direction.west)) {
             //Horizontal corridor
 
-            int wY = Math.max(1, Math.min(this.pixelHeight-corridorBreadth-1, Math.round(this.getDoor(_doors, DoorPosition.W) - corridorBreadth/2)));
-            int eY = Math.max(1, Math.min(this.pixelHeight-corridorBreadth-1, Math.round(this.getDoor(_doors, DoorPosition.E) - corridorBreadth/2)));
+            int wY = Math.max(1, Math.min(this.pixelHeight-corridorBreadth-1, Math.round(twoDoors.get(Direction.west) - corridorBreadth/2)));
+            int eY = Math.max(1, Math.min(this.pixelHeight-corridorBreadth-1, Math.round(twoDoors.get(Direction.east) - corridorBreadth/2)));
 
             if (wY == eY) {
                 //Straight corridor
@@ -310,7 +323,7 @@ public class RoomModel {
                 Full room + cut-outs
         */
 
-        final Map.Entry<DoorPosition, Integer>[] availableDoors = (Map.Entry<DoorPosition, Integer>[]) this.doors.entrySet().toArray(new Map.Entry[this.doors.size()]);
+        final Map.Entry<Direction, DoorData>[] availableDoors = (Map.Entry<Direction, DoorData>[]) this.doors.entrySet().toArray(new Map.Entry[this.doors.size()]);
 
         switch (availableDoors.length) {
             case 1:
@@ -321,20 +334,20 @@ public class RoomModel {
                     Math.round(MIN_WALL_LENGTH + RandomUtils.getRandom() * (this.tilesPerDistance - MIN_WALL_LENGTH))
                 );
                 switch (availableDoors[0].getKey()) {
-                    case S:
+                    case south:
                         dim.y = this.pixelHeight - dim.height;
-                        dim.x = Math.max(0, Math.min(this.pixelWidth-dim.width, Math.round(availableDoors[0].getValue() - dim.width/2)));
+                        dim.x = Math.max(0, Math.min(this.pixelWidth-dim.width, Math.round(availableDoors[0].getValue().offset - dim.width/2)));
                         break;
-                    case N:
+                    case north:
                         dim.y = 0;
-                        dim.x = Math.max(0, Math.min(this.pixelWidth-dim.width, Math.round(availableDoors[0].getValue() - dim.width/2)));
+                        dim.x = Math.max(0, Math.min(this.pixelWidth-dim.width, Math.round(availableDoors[0].getValue().offset - dim.width/2)));
                         break;
-                    case W:
-                        dim.y = Math.max(0, Math.min(this.pixelHeight - dim.height, Math.round(availableDoors[0].getValue() - dim.height / 2)));
+                    case west:
+                        dim.y = Math.max(0, Math.min(this.pixelHeight - dim.height, Math.round(availableDoors[0].getValue().offset - dim.height / 2)));
                         dim.x = 0;
                         break;
-                    case E:
-                        dim.y = Math.max(0, Math.min(this.pixelHeight-dim.height, Math.round(availableDoors[0].getValue() - dim.height/2)));
+                    case east:
+                        dim.y = Math.max(0, Math.min(this.pixelHeight-dim.height, Math.round(availableDoors[0].getValue().offset - dim.height/2)));
                         dim.x = this.pixelWidth - dim.width;
                         break;
                 }
@@ -352,88 +365,72 @@ public class RoomModel {
                 break;
 
 
-            case 2:
-                this.connectDoors(this.doors);
-                this.applyWallInBitmap();
-                break;
-
+            case 2: // we can reuse the code for case 3
             case 3:
-                Map<DoorPosition, Integer> _doors;
-                if (this.hasDoor(DoorPosition.N)) {
-                    if (this.hasDoor(DoorPosition.E)) {
-                        _doors = new HashMap<DoorPosition, Integer>();
-                        _doors.put(DoorPosition.N, doors.get(DoorPosition.N));
-                        _doors.put(DoorPosition.E, doors.get(DoorPosition.E));
-                        this.connectDoors(_doors);
+                Map<Direction, Integer> twoDoors = new HashMap<Direction, Integer>();
+                if (this.hasDoor(Direction.north)) {
+                    if (this.hasDoor(Direction.east)) {
+                        twoDoors.put(Direction.north, doors.get(Direction.north).offset);
+                        twoDoors.put(Direction.east, doors.get(Direction.east).offset);
+                        this.connectDoors(twoDoors);
                     }
-                    if (this.hasDoor(DoorPosition.S)) {
-                        _doors = new HashMap<DoorPosition, Integer>();
-                        _doors.put(DoorPosition.N, doors.get(DoorPosition.N));
-                        _doors.put(DoorPosition.S, doors.get(DoorPosition.S));
-                        this.connectDoors(_doors);
+                    if (this.hasDoor(Direction.south)) {
+                        twoDoors.put(Direction.north, doors.get(Direction.north).offset);
+                        twoDoors.put(Direction.south, doors.get(Direction.south).offset);
+                        this.connectDoors(twoDoors);
                     }
-                    if (this.hasDoor(DoorPosition.W)) {
-                        _doors = new HashMap<DoorPosition, Integer>();
-                        _doors.put(DoorPosition.N, doors.get(DoorPosition.N));
-                        _doors.put(DoorPosition.W, doors.get(DoorPosition.W));
-                        this.connectDoors(_doors);
+                    if (this.hasDoor(Direction.west)) {
+                        twoDoors.put(Direction.north, doors.get(Direction.north).offset);
+                        twoDoors.put(Direction.west, doors.get(Direction.west).offset);
+                        this.connectDoors(twoDoors);
                     }
-                } else if (this.hasDoor(DoorPosition.S)) {
-                    if (this.hasDoor(DoorPosition.E)) {
-                        _doors = new HashMap<DoorPosition, Integer>();
-                        _doors.put(DoorPosition.S, doors.get(DoorPosition.S));
-                        _doors.put(DoorPosition.E, doors.get(DoorPosition.E));
-                        this.connectDoors(_doors);
+                } else if (this.hasDoor(Direction.south)) {
+                    if (this.hasDoor(Direction.east)) {
+                        twoDoors.put(Direction.south, doors.get(Direction.south).offset);
+                        twoDoors.put(Direction.east, doors.get(Direction.east).offset);
+                        this.connectDoors(twoDoors);
                     }
-                    if (this.hasDoor(DoorPosition.N)) {
-                        _doors = new HashMap<DoorPosition, Integer>();
-                        _doors.put(DoorPosition.S, doors.get(DoorPosition.S));
-                        _doors.put(DoorPosition.N, doors.get(DoorPosition.N));
-                        this.connectDoors(_doors);
+                    if (this.hasDoor(Direction.north)) {
+                        twoDoors.put(Direction.south, doors.get(Direction.south).offset);
+                        twoDoors.put(Direction.north, doors.get(Direction.north).offset);
+                        this.connectDoors(twoDoors);
                     }
-                    if (this.hasDoor(DoorPosition.W)) {
-                        _doors = new HashMap<DoorPosition, Integer>();
-                        _doors.put(DoorPosition.S, doors.get(DoorPosition.S));
-                        _doors.put(DoorPosition.W, doors.get(DoorPosition.W));
-                        this.connectDoors(_doors);
+                    if (this.hasDoor(Direction.west)) {
+                        twoDoors.put(Direction.south, doors.get(Direction.south).offset);
+                        twoDoors.put(Direction.west, doors.get(Direction.west).offset);
+                        this.connectDoors(twoDoors);
                     }
-                } else if (this.hasDoor(DoorPosition.W)) {
-                    if (this.hasDoor(DoorPosition.E)) {
-                        _doors = new HashMap<DoorPosition, Integer>();
-                        _doors.put(DoorPosition.W, doors.get(DoorPosition.W));
-                        _doors.put(DoorPosition.E, doors.get(DoorPosition.E));
-                        this.connectDoors(_doors);
+                } else if (this.hasDoor(Direction.west)) {
+                    if (this.hasDoor(Direction.east)) {
+                        twoDoors.put(Direction.west, doors.get(Direction.west).offset);
+                        twoDoors.put(Direction.east, doors.get(Direction.east).offset);
+                        this.connectDoors(twoDoors);
                     }
-                    if (this.hasDoor(DoorPosition.N)) {
-                        _doors = new HashMap<DoorPosition, Integer>();
-                        _doors.put(DoorPosition.W, doors.get(DoorPosition.W));
-                        _doors.put(DoorPosition.N, doors.get(DoorPosition.N));
-                        this.connectDoors(_doors);
+                    if (this.hasDoor(Direction.north)) {
+                        twoDoors.put(Direction.west, doors.get(Direction.west).offset);
+                        twoDoors.put(Direction.north, doors.get(Direction.north).offset);
+                        this.connectDoors(twoDoors);
                     }
-                    if (this.hasDoor(DoorPosition.S)) {
-                        _doors = new HashMap<DoorPosition, Integer>();
-                        _doors.put(DoorPosition.W, doors.get(DoorPosition.W));
-                        _doors.put(DoorPosition.S, doors.get(DoorPosition.S));
-                        this.connectDoors(_doors);
+                    if (this.hasDoor(Direction.south)) {
+                        twoDoors.put(Direction.west, doors.get(Direction.west).offset);
+                        twoDoors.put(Direction.south, doors.get(Direction.south).offset);
+                        this.connectDoors(twoDoors);
                     }
-                } else if (this.hasDoor(DoorPosition.E)) {
-                    if (this.hasDoor(DoorPosition.W)) {
-                        _doors = new HashMap<DoorPosition, Integer>();
-                        _doors.put(DoorPosition.E, doors.get(DoorPosition.E));
-                        _doors.put(DoorPosition.W, doors.get(DoorPosition.W));
-                        this.connectDoors(_doors);
+                } else if (this.hasDoor(Direction.east)) {
+                    if (this.hasDoor(Direction.west)) {
+                        twoDoors.put(Direction.east, doors.get(Direction.east).offset);
+                        twoDoors.put(Direction.west, doors.get(Direction.west).offset);
+                        this.connectDoors(twoDoors);
                     }
-                    if (this.hasDoor(DoorPosition.N)) {
-                        _doors = new HashMap<DoorPosition, Integer>();
-                        _doors.put(DoorPosition.E, doors.get(DoorPosition.E));
-                        _doors.put(DoorPosition.N, doors.get(DoorPosition.N));
-                        this.connectDoors(_doors);
+                    if (this.hasDoor(Direction.north)) {
+                        twoDoors.put(Direction.east, doors.get(Direction.east).offset);
+                        twoDoors.put(Direction.north, doors.get(Direction.north).offset);
+                        this.connectDoors(twoDoors);
                     }
-                    if (this.hasDoor(DoorPosition.S)) {
-                        _doors = new HashMap<DoorPosition, Integer>();
-                        _doors.put(DoorPosition.E, doors.get(DoorPosition.E));
-                        _doors.put(DoorPosition.S, doors.get(DoorPosition.S));
-                        this.connectDoors(_doors);
+                    if (this.hasDoor(Direction.south)) {
+                        twoDoors.put(Direction.east, doors.get(Direction.east).offset);
+                        twoDoors.put(Direction.south, doors.get(Direction.south).offset);
+                        this.connectDoors(twoDoors);
                     }
                 }
                 this.applyWallInBitmap();
@@ -455,20 +452,32 @@ public class RoomModel {
         }
 
         //Apply doors to local bitmap
-        if (this.hasDoor(DoorPosition.S)) {
-            this.bitmap[this.pixelHeight-1][this.getDoor(DoorPosition.S)] = TileTypes.TILE_DOOR;
+        if (this.hasDoor(Direction.south)) {
+            DoorData dd = doors.get(Direction.south);
+            dd.x = dd.offset;
+            dd.y = pixelHeight - 1;
+            this.bitmap[dd.y][dd.x] = TileTypes.TILE_DOOR;
         }
 
-        if (this.hasDoor(DoorPosition.N)) {
-            this.bitmap[0][this.getDoor(DoorPosition.N)] = TileTypes.TILE_DOOR;
+        if (this.hasDoor(Direction.north)) {
+            DoorData dd = doors.get(Direction.north);
+            dd.x = dd.offset;
+            dd.y = 0;
+            this.bitmap[dd.y][dd.x] = TileTypes.TILE_DOOR;
         }
 
-        if (this.hasDoor(DoorPosition.W)) {
-            this.bitmap[this.getDoor(DoorPosition.W)][0] = TileTypes.TILE_DOOR;
+        if (this.hasDoor(Direction.west)) {
+            DoorData dd = doors.get(Direction.west);
+            dd.x = 0;
+            dd.y = dd.offset;
+            this.bitmap[dd.y][dd.x] = TileTypes.TILE_DOOR;
         }
 
-        if (this.hasDoor(DoorPosition.E)) {
-            this.bitmap[this.getDoor(DoorPosition.E)][this.pixelWidth-1] = TileTypes.TILE_DOOR;
+        if (this.hasDoor(Direction.east)) {
+            DoorData dd = doors.get(Direction.east);
+            dd.x = pixelWidth - 1;
+            dd.y = dd.offset;
+            this.bitmap[dd.y][dd.x] = TileTypes.TILE_DOOR;
         }
 
     }

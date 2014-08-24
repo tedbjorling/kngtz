@@ -3,19 +3,24 @@ package com.holidaystudios.kngtz;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.content.Intent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-
+import android.media.MediaPlayer;
 import com.holidaystudios.kngt.networking.ServerFinder;
 
 public class StartupActivity extends Activity {
+    MediaPlayer myMediaPlayer = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_startup);
+        myMediaPlayer = MediaPlayer.create(this, R.raw.menu_soundtrack);
+        myMediaPlayer.start();
     }
 
     @Override
@@ -36,12 +41,14 @@ public class StartupActivity extends Activity {
     }
 
     public void launchServer(View view) {
+        myMediaPlayer.stop();
         Intent login_intent = new Intent(GameServerService.ACTION_CREATE_SERVER);
 		startService(login_intent);
         finish();
     }
 
     public void loginToServer(int index) {
+        myMediaPlayer.stop();
         Intent login_intent = new Intent(GameServerService.ACTION_LOGIN_TO_SERVER);
         login_intent.putExtra("serverAddress", servers[index].address);
         startService(login_intent);

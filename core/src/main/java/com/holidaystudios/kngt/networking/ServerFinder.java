@@ -85,10 +85,11 @@ public class ServerFinder {
 						@Override
 						public void serviceResolved(ServiceEvent ev) {
 							String hostAddress = "";
+
 							if (ev.getInfo().getInetAddresses() != null && ev.getInfo().getInetAddresses().length > 0) {
 								hostAddress = ev.getInfo().getInetAddresses()[0].getHostAddress();
 							}
-							notifyUser("yabbadabba! GameServer resolved: " +
+							notifyUser("yabbadhabba! GameServer resolved: " +
 								   ev.getInfo().getQualifiedName() + " port:" + ev.getInfo().getPort() +
 								   " " + hostAddress);
 

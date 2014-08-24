@@ -122,6 +122,8 @@ public class GameServer extends Thread {
             System.exit(-1);
         }
 
+        Gdx.app.log("kngt", "Server is bound to " + serverSocket.getLocalAddress());
+
         long lastTime = System.nanoTime();
         long thisTime;
         while(running) {

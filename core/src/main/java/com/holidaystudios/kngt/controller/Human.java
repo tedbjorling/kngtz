@@ -11,6 +11,7 @@ import com.holidaystudios.kngt.networking.GameServer;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 /**
@@ -31,28 +32,36 @@ public class Human {
     }
 
     public void doMove(DatagramSocket serverSocket, ByteBuffer data) throws IOException {
-        switch(data.get()) {
-            case GameServer.GAME_DIRECTION_NORTH:
-                Gdx.app.log("kngt", "SERVER will move knight: north");
-                knight.move(model, Direction.north);
-                break;
-            case GameServer.GAME_DIRECTION_WEST:
-                Gdx.app.log("kngt", "SERVER will move knight: west");
-                knight.move(model, Direction.west);
-                break;
-            case GameServer.GAME_DIRECTION_SOUTH:
-                Gdx.app.log("kngt", "SERVER will move knight: south");
-                knight.move(model, Direction.south);
-                break;
-            case GameServer.GAME_DIRECTION_EAST:
-                Gdx.app.log("kngt", "SERVER will move knight: east");
-                knight.move(model, Direction.east);
-                break;
+        try {
+            switch(data.get()) {
+                case GameServer.GAME_DIRECTION_NORTH:
+                    Gdx.app.log("kngt", "SERVER will move knight: north");
+                    knight.move(model, Direction.north);
+                    break;
+                case GameServer.GAME_DIRECTION_WEST:
+                    Gdx.app.log("kngt", "SERVER will move knight: west");
+                    knight.move(model, Direction.west);
+                    break;
+                case GameServer.GAME_DIRECTION_SOUTH:
+                    Gdx.app.log("kngt", "SERVER will move knight: south");
+                    knight.move(model, Direction.south);
+                    break;
+                case GameServer.GAME_DIRECTION_EAST:
+                    Gdx.app.log("kngt", "SERVER will move knight: east");
+                    knight.move(model, Direction.east);
+                    break;
+            }
+        } catch(RoomModel.NewRoomException e) {
+            knight.setPosition(
+                    model.getRoomDoorXPosition(Integer.valueOf(knight.getRoomX()), Integer.valueOf(knight.getRoomY()), e.direction),
+                    model.getRoomDoorYPosition(Integer.valueOf(knight.getRoomX()), Integer.valueOf(knight.getRoomY()), e.direction)
+                    );
+            publishCurrentState(serverSocket);
         }
     }
 
     public void publishCurrentState(DatagramSocket serverSocket) throws IOException {
-        Gdx.app.log("kngt", "publishCurrentState for human #" + humanID);
+        Gdx.app.log("kngt", "publishCurrentState for human #" + humanID + " at " + clientAddress.getHostAddress() + " - " + clientAddress.getHostName());
         byte[][] room = model.getRoomBitmap(Integer.valueOf(knight.getRoomX()), Integer.valueOf(knight.getRoomY()));
         RoomModel.publishRoomBitmap(
                 room, serverSocket,

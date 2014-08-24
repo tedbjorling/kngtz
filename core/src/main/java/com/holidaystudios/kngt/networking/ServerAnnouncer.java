@@ -6,6 +6,8 @@
 
 package com.holidaystudios.kngt.networking;
 
+import com.badlogic.gdx.Gdx;
+
 import java.lang.Thread;
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
@@ -14,7 +16,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 public class ServerAnnouncer {
-    public static final String SERVER_IDENTIFIER = "_kngtz-server._tcp.local.";
+    public static final String SERVER_IDENTIFIER = "_kngtz-server._udp.local.";
 
     private static class JmDNSThread extends Thread {
         private ServerNetworkInterface netInterface;
@@ -36,7 +38,7 @@ public class ServerAnnouncer {
                 e.printStackTrace();
                 return;
             }
-
+            Gdx.app.log("kngt", "ServerAnnouncer using address: " + _bindingAddress.getHostAddress().toString());
         }
 
         public void run() {

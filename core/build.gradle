@@ -4,4 +4,5 @@ eclipse.project {
 }
 dependencies {
     compile files('libs/jmdns.jar')
+    compile files('libs/JmDNS.jar')
 }

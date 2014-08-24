@@ -59,6 +59,14 @@ public class GameModel {
         return this.cave.getRoomBitmap(cx, cy);
     }
 
+    public int getRoomDoorXPosition(final Integer cx, final Integer cy, Direction dir) {
+        return cave.getRoomDoorXPosition(cx, cy, dir);
+    }
+
+    public int getRoomDoorYPosition(final Integer cx, final Integer cy, Direction dir) {
+        return cave.getRoomDoorYPosition(cx, cy, dir);
+    }
+
     public void act(float secondsDelta) {
         ListIterator<KnightModel> i = knights.listIterator();
 

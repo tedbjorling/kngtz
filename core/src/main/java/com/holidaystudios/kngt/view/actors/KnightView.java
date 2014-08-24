@@ -76,7 +76,7 @@ public class KnightView extends Actor {
                     break;
             }
         }
-        setPosition(model.getPosX() * getWidth(), (Defs.TILES_PER_DISTANCE - model.getPosY()) * getHeight());
+        setPosition(model.getPosX() * getWidth(), (Defs.TILES_PER_DISTANCE - model.getPosY() - 1) * getHeight()); // xxx - 1 because the knight is misplaced one square vertically...
 
         switch(model.getDirection()) {
             case north:

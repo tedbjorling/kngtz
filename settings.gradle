@@ -1,2 +1,1 @@
-include ':JmDNS'
-include "core", "desktop", "android"
+include "JmDNS", "core", "desktop", "android"

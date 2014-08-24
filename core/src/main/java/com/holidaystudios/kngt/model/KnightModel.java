@@ -139,7 +139,7 @@ public class KnightModel extends ActorModel {
         knightID = _knightID;
     }
 
-    public void move(GameModel gameModel, Direction _direction) {
+    public void move(GameModel gameModel, Direction _direction) throws RoomModel.NewRoomException {
         dirtyFlag = true;
 
         if(state == State.stand) {
@@ -147,12 +147,23 @@ public class KnightModel extends ActorModel {
             int px= posX; int py = posY;
             switch (_direction) {
                 case east: px++; break;
-                case west: py--; break;
+                case west: px--; break;
                 case north: py--; break;
-                case south: px++; break;
+                case south: py++; break;
             }
 
-            final int targetTile = gameModel.getRoomBitmap(roomX, roomY)[py][px];
+            final int sourceTile = gameModel.getRoomBitmap(roomX, roomY)[posY][posX];
+
+            Gdx.app.log("kngt", "NEW POSITION (" + px + ", " + py + ")");
+
+            int targetTile = TileTypes.TILE_NONE;
+            try {
+                targetTile = gameModel.getRoomBitmap(roomX, roomY)[py][px];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // ignore
+            }
+
+            Gdx.app.log("kngt", "Knight is moving from ]" + sourceTile + "[ to ]" + targetTile + "[");
 
             switch(targetTile) {
                 case TileTypes.TILE_DOOR:
@@ -163,6 +174,29 @@ public class KnightModel extends ActorModel {
                     stateDuration = WALK_DURATION;
                     break;
                 case TileTypes.TILE_NONE:
+                    if(sourceTile == TileTypes.TILE_DOOR) {
+                        Direction oppositeDirection = Direction.west;
+                        switch(_direction) {
+                            case east:
+                                roomX++;
+                                oppositeDirection = Direction.west;
+                                break;
+                            case west:
+                                roomX--;
+                                oppositeDirection = Direction.east;
+                                break;
+                            case north:
+                                roomY--;
+                                oppositeDirection = Direction.south;
+                                break;
+                            case south:
+                                roomY++;
+                                oppositeDirection = Direction.north;
+                                break;
+                        }
+                        throw new RoomModel.NewRoomException(oppositeDirection);
+                    }
+                    break;
                 case TileTypes.TILE_WALL:
                     break;
             }
